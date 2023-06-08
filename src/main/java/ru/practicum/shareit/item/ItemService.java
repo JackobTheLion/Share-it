@@ -46,9 +46,9 @@ public class ItemService {
 
     public List<Item> getAllItems(Long userId) {
         if (userId == null) {
-            log.info("Getting all items");
+            log.info("userId is null. Getting all items");
         } else {
-            log.info("Getting all items of user {}", userId);
+            log.info("Getting all items of user id: {}", userId);
         }
         List<Item> items = itemStorage.getAllItems(userId);
         log.info("Number of items found: {}", items.size());

@@ -60,8 +60,7 @@ public class InMemoryItemStorage implements ItemStorage {
     public List<Item> getAllItems(Long userId) {
         List<Item> result;
         if (userId == null) {
-            result = items.values().stream()
-                    .collect(Collectors.toList());
+            result = new ArrayList<>(items.values());
         } else {
             result = items.values().stream()
                     .filter(i -> i.getOwnerId().equals(userId))
