@@ -32,7 +32,7 @@ public class InMemoryItemStorage implements ItemStorage {
         if (savedItem == null) {
             throw new ItemNotFoundException(String.format("Item id %s not found", item.getId()));
         }
-        if (savedItem.getOwnerId() != item.getOwnerId()) {
+        if (savedItem.getOwnerId().equals(item.getOwnerId())) {
             throw new NoRightsException(String.format("User id %s cannot update item id %s", item.getOwnerId(), item.getId()));
         }
         if (item.getName() != null) {
