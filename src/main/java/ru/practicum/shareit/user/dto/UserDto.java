@@ -12,7 +12,7 @@ import static ru.practicum.shareit.validation.ValidationGroups.Create;
 @Builder
 public class UserDto {
     private long id;
-    @Email
+    @Email(message = "Email incorrect")
     @NotEmpty(groups = Create.class)
     private String email;
     @NotEmpty(groups = Create.class)

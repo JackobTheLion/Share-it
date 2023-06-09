@@ -30,7 +30,6 @@ public class ItemController {
     public ItemDto addItem(@NotNull @Validated(ValidationGroups.Create.class) @RequestBody ItemDto itemDto,
                            @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
 
-        //validateUserId(userId);
         log.info("Adding item {} by user {}", itemDto, userId);
         Item item = mapFromDto(itemDto, userId);
         log.info("Item mapped from DTO: {}", item);
@@ -44,7 +43,6 @@ public class ItemController {
                               @PathVariable Long itemId,
                               @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
 
-        //validateUserId(userId);
         log.info("Updating item id {} as {} by user {}", itemId, itemDto, userId);
         Item item = mapFromDto(itemDto, itemId, userId);
         log.info("Item mapped from DTO: {}", item);
@@ -93,11 +91,4 @@ public class ItemController {
         log.info("Deleting item id {} by user id {}", itemId, userId);
         itemService.deleteItem(itemId, userId);
     }
-/*
-    private void validateUserId(Long userId) throws ValidationException {
-        if (userId <= 0) {
-            log.error("User id must be more than 0.");
-            throw new ValidationException("User id must be more than 0.");
-        }
-    }*/
 }

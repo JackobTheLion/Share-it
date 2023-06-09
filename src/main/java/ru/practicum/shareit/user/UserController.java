@@ -31,7 +31,7 @@ public class UserController {
         log.info("Adding user {}", userDto);
         User user = mapFromDto(userDto);
         log.info("User mapped from DTO: {}", user);
-        User addedUser = userService.addUser(user);
+        User addedUser = userService.add(user);
         log.info("User added: {}", addedUser);
         return mapToDto(addedUser);
     }
@@ -42,8 +42,9 @@ public class UserController {
 
         log.info("Updating user id {} with {}", userId, userDto);
         User user = mapFromDto(userDto);
+        user.setId(userId);
         log.info("User mapped from DTO: {}", user);
-        User updatedUser = userService.updateUser(user, userId);
+        User updatedUser = userService.update(user);
         log.info("User updated: {}", updatedUser);
         return mapToDto(updatedUser);
     }
@@ -51,7 +52,7 @@ public class UserController {
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable Long userId) {
         log.info("Looking for user id {}", userId);
-        User user = userService.getUser(userId);
+        User user = userService.get(userId);
         log.info("User found: {}", user);
         return mapToDto(user);
     }
@@ -59,7 +60,7 @@ public class UserController {
     @GetMapping
     public List<UserDto> getAllUsers() {
         log.info("Getting all users");
-        List<UserDto> users = userService.getAllUsers().stream().map(UserMapper::mapToDto).collect(Collectors.toList());
+        List<UserDto> users = userService.getAll().stream().map(UserMapper::mapToDto).collect(Collectors.toList());
         log.info("Number of users found {}", users.size());
         return users;
     }
@@ -67,6 +68,6 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable Long userId) {
         log.info("Deleting user id {}", userId);
-        userService.deleteUser(userId);
+        userService.delete(userId);
     }
 }

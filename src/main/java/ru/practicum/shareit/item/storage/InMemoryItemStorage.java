@@ -20,35 +20,24 @@ public class InMemoryItemStorage implements ItemStorage {
     private Long id = 0L;
 
     @Override
-    public Item addItem(Item item) {
+    public Item add(Item item) {
         item.setId(getId());
         items.put(item.getId(), item);
         return item;
     }
 
     @Override
-    public Item updateItem(Item item) {
+    public Item update(Item item) {
         Item savedItem = items.get(item.getId());
         if (savedItem == null) {
             throw new ItemNotFoundException(String.format("Item id %s not found", item.getId()));
         }
-        if (!savedItem.getOwnerId().equals(item.getOwnerId())) {
-            throw new NoRightsException(String.format("User id %s cannot update item id %s", item.getOwnerId(), item.getId()));
-        }
-        if (item.getName() != null) {
-            savedItem.setName(item.getName());
-        }
-        if (item.getDescription() != null) {
-            savedItem.setDescription(item.getDescription());
-        }
-        if (item.getIsAvailable() != null && !item.getIsAvailable().equals(savedItem.getIsAvailable())) {
-            savedItem.setIsAvailable(item.getIsAvailable());
-        }
-        return savedItem;
+        items.put(item.getId(), item);
+        return item;
     }
 
     @Override
-    public Item getItem(Long id) {
+    public Item get(Long id) {
         Item item = items.get(id);
         if (item == null) {
             throw new ItemNotFoundException(String.format("Item id %s not found", id));
@@ -57,7 +46,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public List<Item> getAllItems(Long userId) {
+    public List<Item> getAll(Long userId) {
         List<Item> result;
         if (userId == null) {
             result = new ArrayList<>(items.values());
@@ -70,21 +59,16 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public List<Item> searchItem(String keyWord) {
-        List<Item> result = new ArrayList<>();
-        if (keyWord != null && keyWord.trim().isEmpty()) {
-            return result;
-        }
-        result = items.values().stream()
+    public List<Item> search(String keyWord) {
+        return items.values().stream()
                 .filter(item -> (item.getName().toLowerCase().contains(keyWord.toLowerCase())
                         || item.getDescription().toLowerCase().contains(keyWord.toLowerCase()))
                         && item.getIsAvailable())
                 .collect(Collectors.toList());
-        return result;
     }
 
     @Override
-    public void deleteItem(Long id, Long userId) {
+    public void delete(Long id, Long userId) {
         Item savedItem = items.get(id);
         if (savedItem == null) {
             throw new ItemNotFoundException(String.format("Item id %s not found", id));

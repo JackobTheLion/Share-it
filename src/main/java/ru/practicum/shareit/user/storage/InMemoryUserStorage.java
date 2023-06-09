@@ -6,32 +6,33 @@ import ru.practicum.shareit.user.exceptions.EmailRegisteredException;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Qualifier("inMem")
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
+    private final Set<String> emails = new HashSet<>();
     private Long id = 0L;
 
     @Override
-    public User addUser(User user) {
+    public User add(User user) {
         isEmailExist(user);
         user.setId(getId());
         users.put(user.getId(), user);
+        emails.add(user.getEmail());
         return user;
     }
 
     @Override
-    public User updateUser(User user, Long userId) {
-        User saveduser = getUser(userId);
-        if (user.getEmail() != null && !saveduser.getEmail().equals(user.getEmail())) {
+    public User update(User user) {
+        User saveduser = get(user.getId());
+        if (user.getEmail() != null && !user.getEmail().equals(saveduser.getEmail())) {
             isEmailExist(user);
+            emails.remove(saveduser.getEmail());
             saveduser.setEmail(user.getEmail());
+            emails.add(saveduser.getEmail());
         }
         if (user.getName() != null) {
             saveduser.setName(user.getName());
@@ -40,7 +41,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(Long userId) {
+    public User get(Long userId) {
         User user = users.get(userId);
         if (user == null) {
             throw new UserNotFoundException(String.format("User id %s not found.", userId));
@@ -49,14 +50,15 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getAll() {
         return new ArrayList<>(users.values());
     }
 
     @Override
-    public void deleteUser(Long userId) {
-        getUser(userId);
-        users.remove(userId);
+    public void delete(Long userId) {
+        get(userId);
+        User removedUser = users.remove(userId);
+        emails.remove(removedUser.getEmail());
     }
 
     private Long getId() {
@@ -65,10 +67,8 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private void isEmailExist(User user) {
-        for (User u : users.values()) {
-            if (user.getEmail().equals(u.getEmail())) {
-                throw new EmailRegisteredException("User with such email already registered");
-            }
+        if (emails.contains(user.getEmail())) {
+            throw new EmailRegisteredException(String.format("Email: %s already exists", user.getEmail()));
         }
     }
 }
