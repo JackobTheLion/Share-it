@@ -60,7 +60,7 @@ public class UserController {
     @GetMapping
     public List<UserDto> getAllUsers() {
         log.info("Getting all users");
-        List<UserDto> users = userService.getAll().stream().map(UserMapper::mapToDto).collect(Collectors.toList());
+        List<UserDto> users = userService.findAll().stream().map(UserMapper::mapToDto).collect(Collectors.toList());
         log.info("Number of users found {}", users.size());
         return users;
     }

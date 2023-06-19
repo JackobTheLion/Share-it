@@ -15,11 +15,15 @@ import static ru.practicum.shareit.validation.ValidationGroups.Create;
 @Builder
 public class ItemDto {
     private Long id;
+
     @NotEmpty(groups = Create.class)
     private final String name;
+
     @NotEmpty(groups = Create.class)
     private final String description;
+
     @NotNull(groups = Create.class)
     private Boolean available;
+
     private final Long shareAmount;
 }
