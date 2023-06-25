@@ -37,7 +37,7 @@ public class Item {
     @JoinColumn(name = "item_id")
     private List<Comment> comments = new ArrayList<>();
 
-    transient private Booking lastBooking;
+    private transient Booking lastBooking;
 
-    transient private Booking nextBooking;
+    private transient Booking nextBooking;
 }
