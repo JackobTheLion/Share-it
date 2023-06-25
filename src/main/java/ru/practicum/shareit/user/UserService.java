@@ -9,7 +9,6 @@ import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Component
@@ -26,46 +25,44 @@ public class UserService {
         if (user.getEmail() == null) {
             throw new ValidationException("Email cannot be null");
         }
-        if (userStorage.findByEmailContainingIgnoreCase(user.getEmail()) != null) {
+/*        if (userStorage.findByEmailContainingIgnoreCase(user.getEmail()) != null) {
             throw new EmailRegisteredException("User with such email already registered");
-        }
+        }*/
         log.info("Adding user {}", user);
         return userStorage.save(user);
     }
 
     public User update(User user) {
         log.info("Updating user with {}", user);
-        try {
-            User savedUser = userStorage.getById(user.getId());
-            if (user.getName() != null && !savedUser.getName().equals(user.getName())) {
-                savedUser.setName(user.getName());
-            }
-            if (user.getEmail() != null) {
-                if (savedUser.getEmail().equals(user.getEmail())) {
-                    return userStorage.save(savedUser);
-                } else if (userStorage.findByEmailContainingIgnoreCase(user.getEmail()) != null) {
-                    throw new EmailRegisteredException("User with such email already registered");
-                } else if (!savedUser.getEmail().equals(user.getEmail())) {
-                    savedUser.setEmail(user.getEmail());
-                }
-            }
-            return userStorage.save(savedUser);
-        } catch (EntityNotFoundException e) {
+        User savedUser = userStorage.findById(user.getId()).orElseThrow(() -> {
             log.info("User with id {} not found.", user.getId());
             throw new UserNotFoundException(String.format("User with id %s not found", user.getId()));
+        });
+
+        if (user.getName() != null && !savedUser.getName().equals(user.getName())) {
+            savedUser.setName(user.getName());
         }
+
+        if (user.getEmail() != null) {
+            if (savedUser.getEmail().equals(user.getEmail())) {
+                return userStorage.save(savedUser);
+            } else if (userStorage.findByEmailContainingIgnoreCase(user.getEmail()) != null) {
+                throw new EmailRegisteredException("User with such email already registered");
+            } else if (!savedUser.getEmail().equals(user.getEmail())) {
+                savedUser.setEmail(user.getEmail());
+            }
+        }
+        return userStorage.save(savedUser);
     }
 
     public User get(Long userId) {
         log.info("Looking for user id {}", userId);
-        try {
-            User user = userStorage.getById(userId);
-            log.info("User found: {}", user);
-            return user;
-        } catch (EntityNotFoundException e) {
+        User user = userStorage.findById(userId).orElseThrow(() -> {
             log.info("User id {} not found", userId);
             throw new UserNotFoundException(String.format("User id %s not found", userId));
-        }
+        });
+        log.info("User found: {}", user);
+        return user;
     }
 
     public List<User> findAll() {

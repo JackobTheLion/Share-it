@@ -4,19 +4,23 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.model.Booking;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "items", schema = "public")
+@Table(name = "items")
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "item_id")
     private Long id;
 
     @NotEmpty
@@ -27,7 +31,13 @@ public class Item {
 
     private Boolean isAvailable;
 
-/*    @ManyToOne
-    @JoinColumn(name = "user_id")*/
     private Long ownerId;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "item_id")
+    private List<Comment> comments = new ArrayList<>();
+
+    transient private Booking lastBooking;
+
+    transient private Booking nextBooking;
 }

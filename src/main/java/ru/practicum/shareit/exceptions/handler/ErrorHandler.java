@@ -5,18 +5,23 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.booking.exceptions.BookingNotAloudException;
+import ru.practicum.shareit.booking.exceptions.ItemNotAvailableException;
 import ru.practicum.shareit.exceptions.ErrorResponse;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.item.exceptions.CommentNotAllowedException;
 import ru.practicum.shareit.item.exceptions.NoRightsException;
 import ru.practicum.shareit.user.exceptions.EmailRegisteredException;
+
+import javax.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler
+    @ExceptionHandler({NotFoundException.class, BookingNotAloudException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(final NotFoundException e) {
+    public ErrorResponse handleNotFoundException(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
 
@@ -32,7 +37,9 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler({IllegalArgumentException.class, ValidationException.class})
+    @ExceptionHandler({IllegalArgumentException.class, ValidationException.class,
+            ItemNotAvailableException.class, CommentNotAllowedException.class,
+            ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalArgumentException(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
@@ -41,6 +48,6 @@ public class ErrorHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
-        return new ErrorResponse(e.getBindingResult().toString());
+        return new ErrorResponse(e.getMessage());
     }
 }
