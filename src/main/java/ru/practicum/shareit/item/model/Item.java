@@ -29,6 +29,7 @@ public class Item {
     @NotEmpty
     private String description;
 
+    @Column(name = "available")
     private Boolean isAvailable;
 
     private Long ownerId;

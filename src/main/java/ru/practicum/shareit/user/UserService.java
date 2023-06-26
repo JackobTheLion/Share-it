@@ -7,34 +7,31 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.exceptions.EmailRegisteredException;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
 @Component
 @Slf4j
 public class UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public User add(User user) {
         if (user.getEmail() == null) {
             throw new ValidationException("Email cannot be null");
         }
-/*        if (userStorage.findByEmailContainingIgnoreCase(user.getEmail()) != null) {
-            throw new EmailRegisteredException("User with such email already registered");
-        }*/
         log.info("Adding user {}", user);
-        return userStorage.save(user);
+        return userRepository.save(user);
     }
 
     public User update(User user) {
         log.info("Updating user with {}", user);
-        User savedUser = userStorage.findById(user.getId()).orElseThrow(() -> {
+        User savedUser = userRepository.findById(user.getId()).orElseThrow(() -> {
             log.info("User with id {} not found.", user.getId());
             throw new UserNotFoundException(String.format("User with id %s not found", user.getId()));
         });
@@ -45,19 +42,19 @@ public class UserService {
 
         if (user.getEmail() != null) {
             if (savedUser.getEmail().equals(user.getEmail())) {
-                return userStorage.save(savedUser);
-            } else if (userStorage.findByEmailContainingIgnoreCase(user.getEmail()) != null) {
+                return userRepository.save(savedUser);
+            } else if (userRepository.findByEmailContainingIgnoreCase(user.getEmail()) != null) {
                 throw new EmailRegisteredException("User with such email already registered");
             } else if (!savedUser.getEmail().equals(user.getEmail())) {
                 savedUser.setEmail(user.getEmail());
             }
         }
-        return userStorage.save(savedUser);
+        return userRepository.save(savedUser);
     }
 
     public User get(Long userId) {
         log.info("Looking for user id {}", userId);
-        User user = userStorage.findById(userId).orElseThrow(() -> {
+        User user = userRepository.findById(userId).orElseThrow(() -> {
             log.info("User id {} not found", userId);
             throw new UserNotFoundException(String.format("User id %s not found", userId));
         });
@@ -67,13 +64,13 @@ public class UserService {
 
     public List<User> findAll() {
         log.info("Getting all users");
-        List<User> users = userStorage.findAll();
+        List<User> users = userRepository.findAll();
         log.info("Number of users found {}", users.size());
         return users;
     }
 
     public void delete(Long userId) {
         log.info("Deleting user id {}", userId);
-        userStorage.deleteById(userId);
+        userRepository.deleteById(userId);
     }
 }
