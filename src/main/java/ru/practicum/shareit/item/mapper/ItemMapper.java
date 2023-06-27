@@ -1,7 +1,11 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.mapper;
 
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+
+import java.util.stream.Collectors;
+
+import static ru.practicum.shareit.booking.BookingMapper.mapToDtoItem;
 
 public class ItemMapper {
 
@@ -25,11 +29,23 @@ public class ItemMapper {
     }
 
     public static ItemDto mapToDto(Item item) {
-        return ItemDto.builder()
+        ItemDto itemDto = ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getIsAvailable())
                 .build();
+
+        if (item.getComments() != null) {
+            itemDto.setComments(item.getComments().stream().map(CommentMapper::mapToDto).collect(Collectors.toList()));
+        }
+
+        if (item.getLastBooking() != null) {
+            itemDto.setLastBooking(mapToDtoItem(item.getLastBooking()));
+        }
+        if (item.getNextBooking() != null) {
+            itemDto.setNextBooking(mapToDtoItem(item.getNextBooking()));
+        }
+        return itemDto;
     }
 }

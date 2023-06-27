@@ -4,16 +4,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.shareit.item.ItemMapper.mapFromDto;
-import static ru.practicum.shareit.item.ItemMapper.mapToDto;
+import static ru.practicum.shareit.item.mapper.ItemMapper.mapFromDto;
+import static ru.practicum.shareit.item.mapper.ItemMapper.mapToDto;
+
 
 @Slf4j
 @RestController
@@ -33,9 +39,9 @@ public class ItemController {
         log.info("Adding item {} by user {}", itemDto, userId);
         Item item = mapFromDto(itemDto, userId);
         log.info("Item mapped from DTO: {}", item);
-        itemService.addItem(item);
-        log.info("Item added: {}", item);
-        return mapToDto(item);
+        Item savedItem = itemService.addItem(item);
+        log.info("Item added: {}", savedItem);
+        return mapToDto(savedItem);
     }
 
     @PatchMapping("/{itemId}")
@@ -65,9 +71,10 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@PathVariable Long itemId) {
-        log.info("Looking for item id {}", itemId);
-        Item item = itemService.getItem(itemId);
+    public ItemDto getItem(@PathVariable Long itemId,
+                           @RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId) {
+        log.info("Looking for item id {} by user {}", itemId, userId);
+        Item item = itemService.getItem(itemId, userId);
         log.info("Item found: {}", item);
         ItemDto itemDto = mapToDto(item);
         log.info("Item mapped to DTO: {}", itemDto);
@@ -90,5 +97,16 @@ public class ItemController {
 
         log.info("Deleting item id {} by user id {}", itemId, userId);
         itemService.deleteItem(itemId, userId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@PathVariable Long itemId,
+                                 @RequestHeader(value = "X-Sharer-User-Id") Long userId,
+                                 @RequestBody CommentDto commentDto) {
+        log.info("Comment {} from user id {} to item {} received.", commentDto, userId, itemId);
+        Comment comment = CommentMapper.mapFromDto(commentDto, userId, itemId);
+        Comment savedComment = itemService.addComment(comment);
+        log.info("Comment saved: {}", savedComment);
+        return CommentMapper.mapToDto(savedComment);
     }
 }

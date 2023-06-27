@@ -4,20 +4,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.user.exceptions.EmailRegisteredException;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
 @Component
 @Slf4j
 public class UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public User add(User user) {
@@ -25,37 +26,51 @@ public class UserService {
             throw new ValidationException("Email cannot be null");
         }
         log.info("Adding user {}", user);
-        return userStorage.add(user);
+        return userRepository.save(user);
     }
 
-    public User update(User updatedUser) {
-        log.info("Updating user with {}", updatedUser);
-        User savedUser = userStorage.get(updatedUser.getId());
-        if (savedUser == null) {
-            throw new UserNotFoundException(String.format("User id %s not found.", updatedUser.getId()));
+    public User update(User user) {
+        log.info("Updating user with {}", user);
+        User savedUser = userRepository.findById(user.getId()).orElseThrow(() -> {
+            log.info("User with id {} not found.", user.getId());
+            throw new UserNotFoundException(String.format("User with id %s not found", user.getId()));
+        });
+
+        if (user.getName() != null && !savedUser.getName().equals(user.getName())) {
+            savedUser.setName(user.getName());
         }
-        if (updatedUser.getName() != null) {
-            savedUser.setName(updatedUser.getName());
+
+        if (user.getEmail() != null) {
+            if (savedUser.getEmail().equals(user.getEmail())) {
+                return userRepository.save(savedUser);
+            } else if (userRepository.findByEmailContainingIgnoreCase(user.getEmail()) != null) {
+                throw new EmailRegisteredException("User with such email already registered");
+            } else if (!savedUser.getEmail().equals(user.getEmail())) {
+                savedUser.setEmail(user.getEmail());
+            }
         }
-        return userStorage.update(updatedUser);
+        return userRepository.save(savedUser);
     }
 
     public User get(Long userId) {
         log.info("Looking for user id {}", userId);
-        User user = userStorage.get(userId);
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            log.info("User id {} not found", userId);
+            throw new UserNotFoundException(String.format("User id %s not found", userId));
+        });
         log.info("User found: {}", user);
         return user;
     }
 
-    public List<User> getAll() {
+    public List<User> findAll() {
         log.info("Getting all users");
-        List<User> users = userStorage.getAll();
+        List<User> users = userRepository.findAll();
         log.info("Number of users found {}", users.size());
         return users;
     }
 
     public void delete(Long userId) {
         log.info("Deleting user id {}", userId);
-        userStorage.delete(userId);
+        userRepository.deleteById(userId);
     }
 }
