@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.request.model.Request;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -37,6 +38,10 @@ public class Item {
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "item_id")
     private List<Comment> comments = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "request_id")
+    private Request request;
 
     private transient Booking lastBooking;
 
