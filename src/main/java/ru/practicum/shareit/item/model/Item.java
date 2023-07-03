@@ -40,7 +40,7 @@ public class Item {
     private List<Comment> comments = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "request_id")
     private Request request;
 
     private transient Booking lastBooking;

@@ -37,8 +37,9 @@ public class RequestService {
 
     public RequestDto addRequest(RequestDto requestDto) {
         log.info("Adding request: {}", requestDto);
-        doesUserExist(requestDto.getRequesterId());
+        User requester = doesUserExist(requestDto.getRequesterId());
         Request request = mapFromDto(requestDto);
+        request.setRequester(requester);
         request.setCreated(Timestamp.valueOf(LocalDateTime.now()));
         Request savedRequest;
         try {
@@ -51,8 +52,9 @@ public class RequestService {
         return mapToDto(savedRequest);
     }
 
-    public RequestDto findRequest(Long requestId) {
-        log.info("Looking for request id {}", requestId);
+    public RequestDto findRequest(Long requestId, Long userId) {
+        log.info("Looking for request id {} by user {}", requestId, userId);
+        doesUserExist(userId);
         Request request = requestRepository.findById(requestId).orElseThrow(() -> {
             log.error("Request id {} not found.", requestId);
             return new RequestNotFoundException(String.format("Request id %s not found.", requestId));
@@ -69,10 +71,10 @@ public class RequestService {
         return requests.map(RequestMapper::mapToDto).getContent();
     }
 
-    public List<RequestDto> findAllRequests(int from, int size) {
+    public List<RequestDto> findAllRequests(Long userId, int from, int size) {
         log.info("Looking for requests/ Paging from {}, size {}.", from, size);
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-        Page<Request> requests = requestRepository.findAllOrderByCreated(page);
+        Page<Request> requests = requestRepository.findAllOrderByCreated(userId, page);
         return requests.map(RequestMapper::mapToDto).getContent();
     }
 

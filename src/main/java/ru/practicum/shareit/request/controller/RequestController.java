@@ -35,9 +35,11 @@ public class RequestController {
     }
 
     @GetMapping("/{requestId}")
-    public RequestDto findRequest(@PathVariable Long requestId) {
-        log.info("Looking for request id {}", requestId);
-        RequestDto requestDto = requestService.findRequest(requestId);
+    public RequestDto findRequest(@PathVariable Long requestId,
+                                  @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
+                                          message = "User id should be more than 0") Long userId) {
+        log.info("Looking for request id {} by user {}", requestId, userId);
+        RequestDto requestDto = requestService.findRequest(requestId, userId);
         log.info("Request found: {}", requestDto);
         return requestDto;
     }
@@ -58,15 +60,15 @@ public class RequestController {
 
     @GetMapping("/all")
     public List<RequestDto> getRequests(
-/*            @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
-            message = "User id should be more than 0") Long userId,*/
+            @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
+                    message = "User id should be more than 0") Long userId,
             @RequestParam(defaultValue = "0") @Min(value = 0,
                     message = "Parameter 'from' must be more than 0") int from,
             @RequestParam(defaultValue = "10") @Min(value = 0,
                     message = "Parameter 'size' must be more than 0") int size) {
 
         log.info("Looking for all requests from {}, size {}", from, size);
-        List<RequestDto> requests = requestService.findAllRequests(from, size);
+        List<RequestDto> requests = requestService.findAllRequests(userId, from, size);
         log.info("Requests found: {}", requests);
         return requests;
     }
