@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -13,6 +14,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,13 +61,18 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId) {
+    public List<ItemDto> getAllItems(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
+                                     @RequestParam(defaultValue = "0") @Min(value = 0,
+                                             message = "Parameter 'from' must be more than 0") int from,
+                                     @RequestParam(defaultValue = "10") @Min(value = 0,
+                                             message = "Parameter 'size' must be more than 0") int size) {
         if (userId == null) {
             log.info("Getting all items");
         } else {
             log.info("Getting all items of user {}", userId);
         }
-        List<Item> items = itemService.getAllItems(userId);
+        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        List<Item> items = itemService.getAllItems(userId, from, size);
         log.info("Number of items found: {}", items.size());
         return items.stream().map(ItemMapper::mapToDto).collect(Collectors.toList());
     }
@@ -83,10 +90,14 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> searchItem(@RequestParam String text,
-                                    @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                    @RequestHeader("X-Sharer-User-Id") Long userId,
+                                    @RequestParam(defaultValue = "0") @Min(value = 0,
+                                            message = "Parameter 'from' must be more than 0") int from,
+                                    @RequestParam(defaultValue = "10") @Min(value = 0,
+                                            message = "Parameter 'size' must be more than 0") int size) {
 
         log.info("Looking for item by key word: \"{}\". User id: {}", text, userId);
-        List<Item> items = itemService.searchItem(text, userId);
+        List<Item> items = itemService.searchItem(text, userId, from, size);
         log.info("Number of items found: {}", items.size());
         return items.stream().map(ItemMapper::mapToDto).collect(Collectors.toList());
     }

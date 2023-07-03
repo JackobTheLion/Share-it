@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
@@ -9,25 +11,27 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findByBookerIdOrderByStartDateDesc(Long userId);
+    Page<Booking> findByBookerIdOrderByStartDateDesc(Long userId, Pageable page);
 
-    List<Booking> findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(Long userId, Timestamp t1, Timestamp t2);
+    Page<Booking> findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(Long userId, Timestamp t1,
+                                                                                      Timestamp t2, Pageable page);
 
-    List<Booking> findByBookerIdAndEndDateBeforeOrderByStartDateDesc(Long userId, Timestamp t1);
+    Page<Booking> findByBookerIdAndEndDateBeforeOrderByStartDateDesc(Long userId, Timestamp t1, Pageable page);
 
-    List<Booking> findByBookerIdAndStartDateAfterOrderByStartDateDesc(Long userId, Timestamp t1);
+    Page<Booking> findByBookerIdAndStartDateAfterOrderByStartDateDesc(Long userId, Timestamp t1, Pageable page);
 
-    List<Booking> findByBookerIdAndStatusEqualsOrderByStartDateDesc(Long userId, Status status);
+    Page<Booking> findByBookerIdAndStatusEqualsOrderByStartDateDesc(Long userId, Status status, Pageable page);
 
-    List<Booking> findByItemOwnerIdOrderByStartDateDesc(Long userId);
+    Page<Booking> findByItemOwnerIdOrderByStartDateDesc(Long userId, Pageable page);
 
-    List<Booking> findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(Long userId, Timestamp t1, Timestamp t2);
+    Page<Booking> findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(Long userId, Timestamp t1,
+                                                                                         Timestamp t2, Pageable page);
 
-    List<Booking> findByItemOwnerIdAndEndDateBeforeOrderByStartDateDesc(Long userId, Timestamp t1);
+    Page<Booking> findByItemOwnerIdAndEndDateBeforeOrderByStartDateDesc(Long userId, Timestamp t1, Pageable page);
 
-    List<Booking> findByItemOwnerIdAndStartDateAfterOrderByStartDateDesc(Long userId, Timestamp t1);
+    Page<Booking> findByItemOwnerIdAndStartDateAfterOrderByStartDateDesc(Long userId, Timestamp t1, Pageable page);
 
-    List<Booking> findByItemOwnerIdAndStatusEqualsOrderByStartDateDesc(Long userId, Status status);
+    Page<Booking> findByItemOwnerIdAndStatusEqualsOrderByStartDateDesc(Long userId, Status status, Pageable page);
 
     List<Booking> findByItemId(Long itemId);
 

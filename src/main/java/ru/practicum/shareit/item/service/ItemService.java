@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
@@ -77,19 +79,20 @@ public class ItemService {
         return itemRepository.save(savedItem);
     }
 
-    public List<Item> getAllItems(Long userId) {
-        List<Item> items;
+    public List<Item> getAllItems(Long userId, int from, int size) {
+        Page<Item> items;
+        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         if (userId == null) {
             log.info("userId is null. Getting all items");
-            items = itemRepository.findAll();
+            items = itemRepository.findAll(page);
         } else {
             log.info("Getting all items of user id: {}", userId);
-            items = itemRepository.findAllByOwnerId(userId);
-            setBookingsToItems(items);
+            items = itemRepository.findAllByOwnerId(userId, page);
+            setBookingsToItems(items.getContent());
         }
 
-        log.info("Number of items found: {}", items.size());
-        return items;
+        log.info("Number of items found: {}", items);
+        return items.getContent();
     }
 
     public Item getItem(Long itemId, Long userId) {
@@ -107,18 +110,19 @@ public class ItemService {
         return item;
     }
 
-    public List<Item> searchItem(String text, Long userId) {
+    public List<Item> searchItem(String text, Long userId, int from, int size) {
         if (text == null || text.isBlank()) {
             return new ArrayList<>();
         }
         log.info("Looking for item by key word: \"{}\". User id: {}", text, userId);
-        List<Item> items = itemRepository
-                .findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsAvailableIsTrue(text, text);
+        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        Page<Item> items = itemRepository
+                .findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsAvailableIsTrue(text, text, page);
 
-        setBookingsToItems(items);
+        setBookingsToItems(items.getContent());
 
-        log.info("Number of items found: {}", items.size());
-        return items;
+        log.info("Number of items found: {}", items);
+        return items.getContent();
     }
 
     public void deleteItem(Long itemId, Long userId) {

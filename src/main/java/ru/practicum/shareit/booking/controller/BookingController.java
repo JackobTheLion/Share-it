@@ -6,13 +6,15 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exceptions.ValidationException;
+//import ru.practicum.shareit.exceptions.ValidationException;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/bookings")
 @Slf4j
+@Validated
+@RequestMapping(path = "/bookings")
 public class BookingController {
 
     private final BookingService bookingService;
@@ -24,9 +26,10 @@ public class BookingController {
 
     @PostMapping
     private BookingDto createBooking(@RequestBody @Validated BookingDto bookingDto,
-                                     @RequestHeader(value = "X-Sharer-User-Id") Long bookerId) {
+                                     @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
+                                             message = "User id should be more than 0") Long bookerId) {
 
-        isIdValid(bookerId);
+        //isIdValid(bookerId);
         log.info("Adding booking: {} by user {}", bookingDto, bookerId);
         BookingDto savedBookingDto = bookingService.createBooking(bookingDto, bookerId);
         log.info("Booking added: {}", savedBookingDto);
@@ -35,9 +38,10 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public BookingDto getBooking(@PathVariable Long bookingId,
-                                 @RequestHeader(value = "X-Sharer-User-Id") Long bookerId) {
+                                 @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
+                                         message = "User id should be more than 0") Long bookerId) {
 
-        isIdValid(bookerId);
+        //isIdValid(bookerId);
         log.info("Looking for booking id {} by user id {}", bookingId, bookerId);
         BookingDto bookingDto = bookingService.findBooking(bookingId, bookerId);
         log.info("Booking found: {}", bookingDto);
@@ -46,23 +50,32 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getUserBookings(@RequestParam(required = false, defaultValue = "ALL") String state,
-                                            @RequestHeader(value = "X-Sharer-User-Id") Long bookerId) {
+                                            @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
+                                                    message = "User id should be more than 0") Long bookerId,
+                                            @RequestParam(defaultValue = "0")  @Min(value = 0,
+                                                    message = "Parameter 'from' must be more than 0") int from,
+                                            @RequestParam(defaultValue = "10") @Min(value = 0,
+                                                    message = "Parameter 'size' must be more than 0") int size) {
 
-
-        isIdValid(bookerId);
+        //isIdValid(bookerId);
         log.info("Looking for bookings of user {} with state {}", bookerId, state);
-        List<BookingDto> bookings = bookingService.getUserBookings(bookerId, state);
+        List<BookingDto> bookings = bookingService.getUserBookings(bookerId, state, from, size);
         log.info("Bookings found: {}.", bookings);
         return bookings;
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getOwnerBooking(@RequestParam(required = false, defaultValue = "ALL") String state,
-                                            @RequestHeader(value = "X-Sharer-User-Id") Long bookerId) {
+                                            @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
+                                                    message = "User id should be more than 0") Long bookerId,
+                                            @RequestParam(defaultValue = "0")  @Min(value = 0,
+                                                    message = "Parameter 'from' must be more than 0") int from,
+                                            @RequestParam(defaultValue = "10") @Min(value = 0,
+                                                    message = "Parameter 'size' must be more than 0") int size) {
 
-        isIdValid(bookerId);
+        //isIdValid(bookerId);
         log.info("Looking for bookings of owner {} with state {}", bookerId, state);
-        List<BookingDto> bookings = bookingService.getOwnerBooking(bookerId, state);
+        List<BookingDto> bookings = bookingService.getOwnerBooking(bookerId, state, from, size);
         log.info("Bookings found: {}.", bookings);
         return bookings;
     }
@@ -70,19 +83,20 @@ public class BookingController {
     @PatchMapping("/{bookingId}")
     public BookingDto updateBooking(@PathVariable Long bookingId,
                                     @RequestParam Boolean approved,
-                                    @RequestHeader(value = "X-Sharer-User-Id") Long bookerId) {
+                                    @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
+                                            message = "User id should be more than 0") Long bookerId) {
 
-        isIdValid(bookerId);
+        //isIdValid(bookerId);
         log.info("Updating booking id {} as {} by user id {}", bookingId, approved, bookerId);
         BookingDto updatedBooking = bookingService.approveBooking(bookerId, approved, bookingId);
         log.info("Booking updated: {}", updatedBooking);
         return updatedBooking;
     }
 
-    private void isIdValid(Long bookerId) {
+/*    private void isIdValid(Long bookerId) {
         if (bookerId <= 0) {
             log.info("User id is invalid");
             throw new ValidationException("User id should be more than 0");
         }
-    }
+    }*/
 }
