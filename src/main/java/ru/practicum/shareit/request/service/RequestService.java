@@ -7,9 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ValidationException;
-import ru.practicum.shareit.request.RequestMapper;
 import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.exceptions.RequestNotFoundException;
+import ru.practicum.shareit.request.mapper.RequestMapper;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
@@ -20,8 +20,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static ru.practicum.shareit.request.RequestMapper.mapFromDto;
-import static ru.practicum.shareit.request.RequestMapper.mapToDto;
+import static ru.practicum.shareit.request.mapper.RequestMapper.mapFromDto;
+import static ru.practicum.shareit.request.mapper.RequestMapper.mapToDto;
 
 @Service
 @Slf4j

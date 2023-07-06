@@ -2,17 +2,16 @@ package ru.practicum.shareit.user.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.validation.ValidationGroups.Create;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
-
-import static ru.practicum.shareit.validation.ValidationGroups.Create;
 
 @Data
 @Builder
 public class UserDto {
 
-    private long id;
+    private Long id;
 
     @Email(message = "Email incorrect")
     @NotEmpty(groups = Create.class)

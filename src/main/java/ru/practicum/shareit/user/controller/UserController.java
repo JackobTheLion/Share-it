@@ -1,19 +1,21 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.shareit.user.UserMapper.mapFromDto;
-import static ru.practicum.shareit.user.UserMapper.mapToDto;
+import static ru.practicum.shareit.user.mapper.UserMapper.mapFromDto;
+import static ru.practicum.shareit.user.mapper.UserMapper.mapToDto;
 
 @RestController
 @Slf4j
@@ -41,8 +43,7 @@ public class UserController {
                               @PathVariable Long userId) {
 
         log.info("Updating user id {} with {}", userId, userDto);
-        User user = mapFromDto(userDto);
-        user.setId(userId);
+        User user = mapFromDto(userDto, userId);
         log.info("User mapped from DTO: {}", user);
         User updatedUser = userService.update(user);
         log.info("User updated: {}", updatedUser);

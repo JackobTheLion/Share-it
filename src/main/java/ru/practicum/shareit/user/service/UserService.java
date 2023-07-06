@@ -1,9 +1,8 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.exceptions.EmailRegisteredException;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
@@ -22,18 +21,17 @@ public class UserService {
     }
 
     public User add(User user) {
-        if (user.getEmail() == null) {
-            throw new ValidationException("Email cannot be null");
-        }
-        log.info("Adding user {}", user);
-        return userRepository.save(user);
+        log.info("Saving user: {}.", user);
+        User savedUser = userRepository.save(user);
+        log.info("User saved: {}.", savedUser);
+        return savedUser;
     }
 
     public User update(User user) {
-        log.info("Updating user with {}", user);
+        log.info("Updating user with: {}.", user);
         User savedUser = userRepository.findById(user.getId()).orElseThrow(() -> {
             log.info("User with id {} not found.", user.getId());
-            throw new UserNotFoundException(String.format("User with id %s not found", user.getId()));
+            return new UserNotFoundException(String.format("User with id %s not found", user.getId()));
         });
 
         if (user.getName() != null && !savedUser.getName().equals(user.getName())) {
@@ -43,10 +41,11 @@ public class UserService {
         if (user.getEmail() != null) {
             if (savedUser.getEmail().equals(user.getEmail())) {
                 return userRepository.save(savedUser);
-            } else if (userRepository.findByEmailContainingIgnoreCase(user.getEmail()) != null) {
+            } else if (userRepository.findByEmailIgnoreCase(user.getEmail()) != null) {
                 throw new EmailRegisteredException("User with such email already registered");
             } else if (!savedUser.getEmail().equals(user.getEmail())) {
                 savedUser.setEmail(user.getEmail());
+                log.info("Email updated.");
             }
         }
         return userRepository.save(savedUser);
@@ -56,7 +55,7 @@ public class UserService {
         log.info("Looking for user id {}", userId);
         User user = userRepository.findById(userId).orElseThrow(() -> {
             log.info("User id {} not found", userId);
-            throw new UserNotFoundException(String.format("User id %s not found", userId));
+            return new UserNotFoundException(String.format("User id %s not found", userId));
         });
         log.info("User found: {}", user);
         return user;

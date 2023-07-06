@@ -18,15 +18,15 @@ public class BookingController {
 
     private final BookingService bookingService;
 
-    @Autowired
+    @Autowired(required = true)
     public BookingController(BookingService bookingService) {
         this.bookingService = bookingService;
     }
 
     @PostMapping
     public BookingDto createBooking(@RequestBody @Validated BookingDto bookingDto,
-                                     @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
-                                             message = "User id should be more than 0") Long bookerId) {
+                                    @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
+                                            message = "User id should be more than 0") Long bookerId) {
 
         log.info("Adding booking: {} by user {}", bookingDto, bookerId);
         BookingDto savedBookingDto = bookingService.createBooking(bookingDto, bookerId);

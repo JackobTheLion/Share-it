@@ -7,7 +7,7 @@ import ru.practicum.shareit.request.model.Request;
 
 import java.util.stream.Collectors;
 
-import static ru.practicum.shareit.booking.BookingMapper.mapToDtoItem;
+import static ru.practicum.shareit.booking.mapper.BookingMapper.mapToDtoItem;
 
 public class ItemMapper {
 
