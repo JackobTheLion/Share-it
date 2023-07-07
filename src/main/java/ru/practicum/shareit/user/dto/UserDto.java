@@ -5,7 +5,7 @@ import lombok.Data;
 import ru.practicum.shareit.validation.ValidationGroups.Create;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @Builder
@@ -14,9 +14,9 @@ public class UserDto {
     private Long id;
 
     @Email(message = "Email incorrect")
-    @NotEmpty(groups = Create.class)
+    @NotBlank(groups = Create.class)
     private String email;
 
-    @NotEmpty(groups = Create.class)
+    @NotBlank(groups = Create.class)
     private String name;
 }

@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.dto.BookingDtoItem;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -15,11 +15,11 @@ import static ru.practicum.shareit.validation.ValidationGroups.Create;
 public class ItemDto {
     private Long id;
 
-    @NotEmpty(groups = Create.class, message = "Name cannot be empty.")
-    private final String name;
+    @NotBlank(groups = Create.class, message = "Name cannot be empty.")
+    private String name;
 
-    @NotEmpty(groups = Create.class, message = "Description cannot be empty.")
-    private final String description;
+    @NotBlank(groups = Create.class, message = "Description cannot be empty.")
+    private String description;
 
     @NotNull(groups = Create.class, message = "Available should be true or false")
     private Boolean available;

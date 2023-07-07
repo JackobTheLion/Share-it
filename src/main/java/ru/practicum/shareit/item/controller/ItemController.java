@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -25,6 +24,7 @@ import static ru.practicum.shareit.item.mapper.ItemMapper.mapToDto;
 
 @Slf4j
 @RestController
+@Validated
 @RequestMapping("/items")
 public class ItemController {
     private final ItemService itemService;
@@ -36,7 +36,8 @@ public class ItemController {
 
     @PostMapping
     public ItemDto addItem(@NotNull @Validated(ValidationGroups.Create.class) @RequestBody ItemDto itemDto,
-                           @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+                           @RequestHeader(value = "X-Sharer-User-Id")
+                           @Min(value = 1, message = "User ID must be more than 0") Long userId) {
 
         log.info("Adding item {} by user {}", itemDto, userId);
         Item item = mapFromDto(itemDto, userId);
@@ -48,8 +49,9 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@NotNull @Validated(ValidationGroups.Update.class) @RequestBody ItemDto itemDto,
-                              @PathVariable Long itemId,
-                              @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+                              @PathVariable @Min(value = 1, message = "Item ID must be more than 0") Long itemId,
+                              @RequestHeader(value = "X-Sharer-User-Id")
+                              @Min(value = 1, message = "User ID must be more than 0") Long userId) {
 
         log.info("Updating item id {} as {} by user {}", itemId, itemDto, userId);
         Item item = mapFromDto(itemDto, itemId, userId);
@@ -71,7 +73,6 @@ public class ItemController {
         } else {
             log.info("Getting all items of user {}", userId);
         }
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         List<Item> items = itemService.getAllItems(userId, from, size);
         log.info("Number of items found: {}", items.size());
         return items.stream().map(ItemMapper::mapToDto).collect(Collectors.toList());
@@ -79,7 +80,8 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ItemDto getItem(@PathVariable Long itemId,
-                           @RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId) {
+                           @RequestHeader(value = "X-Sharer-User-Id", required = false) @Min(value = 1,
+                                   message = "User ID must be more than 0") Long userId) {
         log.info("Looking for item id {} by user {}", itemId, userId);
         Item item = itemService.getItem(itemId, userId);
         log.info("Item found: {}", item);
@@ -90,7 +92,8 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> searchItem(@RequestParam String text,
-                                    @RequestHeader("X-Sharer-User-Id") Long userId,
+                                    @RequestHeader("X-Sharer-User-Id") @Min(value = 1,
+                                            message = "User ID must be more than 0") Long userId,
                                     @RequestParam(defaultValue = "0") @Min(value = 0,
                                             message = "Parameter 'from' must be more than 0") int from,
                                     @RequestParam(defaultValue = "10") @Min(value = 0,
@@ -103,16 +106,18 @@ public class ItemController {
     }
 
     @DeleteMapping("/{itemId}")
-    public void deleteItem(@PathVariable Long itemId,
-                           @RequestHeader(value = "X-Sharer-User-Id") Long userId) {
+    public void deleteItem(@PathVariable @Min(value = 1, message = "Item ID must be more than 0") Long itemId,
+                           @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
+                                   message = "User ID must be more than 0") Long userId) {
 
         log.info("Deleting item id {} by user id {}", itemId, userId);
         itemService.deleteItem(itemId, userId);
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto addComment(@PathVariable Long itemId,
-                                 @RequestHeader(value = "X-Sharer-User-Id") Long userId,
+    public CommentDto addComment(@PathVariable @Min(value = 1, message = "Item ID must be more than 0") Long itemId,
+                                 @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
+                                         message = "User ID must be more than 0") Long userId,
                                  @RequestBody CommentDto commentDto) {
         log.info("Comment {} from user id {} to item {} received.", commentDto, userId, itemId);
         Comment comment = CommentMapper.mapFromDto(commentDto, userId, itemId);
