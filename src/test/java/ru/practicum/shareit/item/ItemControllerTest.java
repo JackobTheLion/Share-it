@@ -11,11 +11,16 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exceptions.handler.ErrorHandler;
 import ru.practicum.shareit.item.controller.ItemController;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.model.User;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,10 +85,11 @@ public class ItemControllerTest {
     @Test
     public void addItem_WrongName() {
         Long userId = 1L;
-        ItemDto itemToSaveDto = ItemDto.builder()
-                .name("")
-                .description("description")
-                .available(true)
+        ItemDto.ItemDtoBuilder builder = ItemDto.builder();
+        builder.name("");
+        builder.description("description");
+        builder.available(true);
+        ItemDto itemToSaveDto = builder
                 .build();
 
         mockMvc.perform(post("/items")
@@ -562,6 +568,52 @@ public class ItemControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(itemService, times(0)).deleteItem(itemId, userId);
+    }
+
+    @SneakyThrows
+    @Test
+    public void addComment_Normal() {
+        Long itemId = 1L;
+        Long userId = 1L;
+        CommentDto commentToAdd = CommentDto.builder()
+                .text("text")
+                .build();
+
+        User author = User.builder()
+                .id(userId)
+                .name("author name")
+                .build();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        Comment savedComment = Comment.builder()
+                .id(1L)
+                .text(commentToAdd.getText())
+                .item(new Item())
+                .created(Timestamp.valueOf(now))
+                .author(author)
+                .build();
+
+        CommentDto expectedCommentDto = CommentDto.builder()
+                .id(savedComment.getId())
+                .text(savedComment.getText())
+                .authorName(author.getName())
+                .created(now)
+                .build();
+
+        when(itemService.addComment(any(Comment.class))).thenReturn(savedComment);
+
+        String result = mockMvc.perform(post("/items/{itemId}/comment", itemId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentToAdd))
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals(objectMapper.writeValueAsString(expectedCommentDto), result);
+        verify(itemService, times(1)).addComment(any(Comment.class));
     }
 
 
