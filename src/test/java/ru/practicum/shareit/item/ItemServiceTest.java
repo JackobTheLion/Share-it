@@ -19,6 +19,10 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +59,7 @@ public class ItemServiceTest {
     private List<Booking> lastBookings;
     private List<Booking> nextBookings;
     private String text = "text";
+    private Long wrongUserId = 999999L;
 
     @BeforeEach
     public void init() {
@@ -196,6 +201,8 @@ public class ItemServiceTest {
         Throwable e = assertThrows(ItemNotFoundException.class, () -> itemService.updateItem(itemToUpdate));
         assertEquals(String.format("Item id %s not found", itemToUpdate.getId()), e.getMessage());
         verify(itemRepository, times(1)).findById(itemToUpdate.getId());
+        verify(itemRepository, times(0)).save(any(Item.class));
+    }
         verify(itemRepository, never()).save(any(Item.class));
     }
 
