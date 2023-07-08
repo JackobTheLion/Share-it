@@ -42,17 +42,13 @@ public class ItemService {
 
     public Item addItem(Item item) {
         log.info("Adding item {}", item);
-        if (item.getName() == null || item.getName().isEmpty()) {
-            log.info("Item name cannot be empty");
-            throw new ValidationException("Item name cannot be empty");
-        }
         User user = userRepository.findById(item.getOwnerId()).orElseThrow(() -> {
             log.info("Item id {} not found ", item.getId());
             return new ItemNotFoundException(String.format("User id %s not found", item.getOwnerId()));
         });
-        itemRepository.save(item);
+        Item savedItem = itemRepository.save(item);
         log.info("Item added {}.", item);
-        return item;
+        return savedItem;
     }
 
     public Item updateItem(Item item) {
