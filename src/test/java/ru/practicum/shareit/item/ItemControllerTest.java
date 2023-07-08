@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -42,30 +43,99 @@ public class ItemControllerTest {
     @MockBean
     private ItemService itemService;
 
-    @SneakyThrows
-    @Test
-    public void addItem_Normal() {
-        Long userId = 1L;
-        ItemDto itemToSaveDto = ItemDto.builder()
+    private ItemDto itemToSaveDto;
+    private Item savedItem;
+    private ItemDto savedItemDto;
+    private Item updatedItem;
+    private ItemDto updatedItemDto;
+    private List<Item> savedItems;
+    private List<ItemDto> savedItemsDto;
+    private CommentDto commentToAdd;
+    private User author;
+    private LocalDateTime now = LocalDateTime.now();
+    private Comment savedComment;
+    private CommentDto expectedCommentDto;
+    private Long userId = 1L;
+    private Long itemId = 1L;
+    private Long wrongUserId = -99999L;
+    private Long wrongItemId = -99999L;
+    private int from = 0;
+    private int size = 10;
+    private String text = "name";
+
+
+    @BeforeEach
+    public void init() {
+        itemToSaveDto = ItemDto.builder()
                 .name("name")
                 .description("description")
                 .available(true)
                 .build();
 
-        Item savedItem = Item.builder()
-                .id(1L)
+        savedItem = Item.builder()
+                .id(itemId)
                 .name(itemToSaveDto.getName())
                 .description(itemToSaveDto.getDescription())
                 .ownerId(userId)
                 .build();
 
-        ItemDto savedItemDto = ItemDto.builder()
+        savedItemDto = ItemDto.builder()
                 .id(savedItem.getId())
                 .name(savedItem.getName())
                 .description(savedItem.getDescription())
                 .available(savedItem.getIsAvailable())
                 .build();
 
+        updatedItem = Item.builder()
+                .id(itemId)
+                .name("updated name")
+                .description("updated description")
+                .ownerId(userId)
+                .isAvailable(true)
+                .build();
+
+        updatedItemDto = ItemDto.builder()
+                .id(updatedItem.getId())
+                .name(updatedItem.getName())
+                .description(updatedItem.getDescription())
+                .available(updatedItem.getIsAvailable())
+                .build();
+
+        savedItems = new ArrayList<>();
+        savedItems.add(savedItem);
+
+        savedItemsDto = new ArrayList<>();
+        savedItemsDto.add(savedItemDto);
+
+        commentToAdd = CommentDto.builder()
+                .text("text")
+                .build();
+
+        author = User.builder()
+                .id(userId)
+                .name("author name")
+                .build();
+
+        savedComment = Comment.builder()
+                .id(1L)
+                .text(commentToAdd.getText())
+                .item(new Item())
+                .created(Timestamp.valueOf(now))
+                .author(author)
+                .build();
+
+        expectedCommentDto = CommentDto.builder()
+                .id(savedComment.getId())
+                .text(savedComment.getText())
+                .authorName(author.getName())
+                .created(now)
+                .build();
+    }
+
+
+    @SneakyThrows
+    @Test
+    public void addItem_Normal() {
         when(itemService.addItem(any(Item.class))).thenReturn(savedItem);
 
         String result = mockMvc.perform(post("/items")
@@ -84,13 +154,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void addItem_WrongName() {
-        Long userId = 1L;
-        ItemDto.ItemDtoBuilder builder = ItemDto.builder();
-        builder.name("");
-        builder.description("description");
-        builder.available(true);
-        ItemDto itemToSaveDto = builder
-                .build();
+        itemToSaveDto.setName("");
 
         mockMvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -99,6 +163,7 @@ public class ItemControllerTest {
                 .andExpect(status().isBadRequest());
 
         itemToSaveDto.setName("   ");
+
         mockMvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(itemToSaveDto))
@@ -111,12 +176,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void addItem_WrongAvailable() {
-        Long userId = 1L;
-        ItemDto itemToSaveDto = ItemDto.builder()
-                .name("name")
-                .description("description")
-                .available(null)
-                .build();
+        itemToSaveDto.setAvailable(null);
 
         mockMvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -130,12 +190,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void addItem_WrongDescription() {
-        Long userId = 1L;
-        ItemDto itemToSaveDto = ItemDto.builder()
-                .name("name")
-                .description("")
-                .available(true)
-                .build();
+        itemToSaveDto.setDescription("");
 
         mockMvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -156,12 +211,6 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void addItem_NotAuthorized() {
-        ItemDto itemToSaveDto = ItemDto.builder()
-                .name("name")
-                .description("")
-                .available(true)
-                .build();
-
         mockMvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(itemToSaveDto)))
@@ -173,11 +222,6 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void addItem_WrongUserId() {
-        Long wrongUserId = -99999L;
-        ItemDto itemToSaveDto = ItemDto.builder()
-                .name("updated name")
-                .build();
-
         mockMvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(itemToSaveDto))
@@ -189,32 +233,18 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void updateItem_UpdateNameNormal() {
-        Long userId = 1L;
-        Long itemId = 1L;
-        ItemDto itemToSaveDto = ItemDto.builder()
+        ItemDto itemToUpdateDto = ItemDto.builder()
                 .name("new name")
                 .build();
 
-        Item updatedItem = Item.builder()
-                .id(1L)
-                .name(itemToSaveDto.getName())
-                .description("description")
-                .ownerId(userId)
-                .isAvailable(true)
-                .build();
-
-        ItemDto updatedItemDto = ItemDto.builder()
-                .id(updatedItem.getId())
-                .name(updatedItem.getName())
-                .description(updatedItem.getDescription())
-                .available(updatedItem.getIsAvailable())
-                .build();
+        updatedItem.setName(itemToUpdateDto.getName());
+        updatedItemDto.setName(itemToUpdateDto.getName());
 
         when(itemService.updateItem(any(Item.class))).thenReturn(updatedItem);
 
         String result = mockMvc.perform(patch("/items/{itemId}", itemId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToSaveDto))
+                        .content(objectMapper.writeValueAsString(itemToUpdateDto))
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -228,32 +258,18 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void updateItem_UpdateDescriptionNormal() {
-        Long userId = 1L;
-        Long itemId = 1L;
-        ItemDto itemToSaveDto = ItemDto.builder()
+        ItemDto itemToUpdateDto = ItemDto.builder()
                 .description("new description")
                 .build();
 
-        Item updatedItem = Item.builder()
-                .id(1L)
-                .name("name")
-                .description(itemToSaveDto.getDescription())
-                .ownerId(userId)
-                .isAvailable(true)
-                .build();
-
-        ItemDto updatedItemDto = ItemDto.builder()
-                .id(updatedItem.getId())
-                .name(updatedItem.getName())
-                .description(updatedItem.getDescription())
-                .available(updatedItem.getIsAvailable())
-                .build();
+        updatedItem.setDescription(itemToUpdateDto.getDescription());
+        updatedItemDto.setDescription(itemToUpdateDto.getDescription());
 
         when(itemService.updateItem(any(Item.class))).thenReturn(updatedItem);
 
         String result = mockMvc.perform(patch("/items/{itemId}", itemId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToSaveDto))
+                        .content(objectMapper.writeValueAsString(itemToUpdateDto))
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -267,14 +283,13 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void updateItem_NotAuthorized() {
-        Long itemId = 1L;
-        ItemDto itemToSaveDto = ItemDto.builder()
+        ItemDto itemToUpdateDto = ItemDto.builder()
                 .name("updated name")
                 .build();
 
         mockMvc.perform(patch("/items/{itemId}", itemId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToSaveDto)))
+                        .content(objectMapper.writeValueAsString(itemToUpdateDto)))
                 .andExpect(status().isBadRequest());
 
         verify(itemService, times(0)).updateItem(any(Item.class));
@@ -283,15 +298,13 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void updateItem_WrongItemId() {
-        Long userId = 1L;
-        Long wrongItemId = -99999L;
-        ItemDto itemToSaveDto = ItemDto.builder()
+        ItemDto itemToUpdateDto = ItemDto.builder()
                 .name("updated name")
                 .build();
 
         mockMvc.perform(patch("/items/{itemId}", wrongItemId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToSaveDto))
+                        .content(objectMapper.writeValueAsString(itemToUpdateDto))
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isBadRequest());
         verify(itemService, times(0)).updateItem(any(Item.class));
@@ -300,15 +313,13 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void updateItem_WrongUserId() {
-        Long wrongUserId = -99999L;
-        Long itemId = 1L;
-        ItemDto itemToSaveDto = ItemDto.builder()
+        ItemDto itemToUpdateDto = ItemDto.builder()
                 .name("updated name")
                 .build();
 
         mockMvc.perform(patch("/items/{itemId}", itemId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToSaveDto))
+                        .content(objectMapper.writeValueAsString(itemToUpdateDto))
                         .header("X-Sharer-User-Id", wrongUserId))
                 .andExpect(status().isBadRequest());
         verify(itemService, times(0)).updateItem(any(Item.class));
@@ -317,26 +328,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void getAllItems_Normal() {
-        Long userId = 1L;
-        int from = 0;
-        int size = 10;
-        List<Item> items = new ArrayList<>();
-        Item savedItem = Item.builder()
-                .id(1L)
-                .name("name")
-                .description("description")
-                .build();
-        items.add(savedItem);
-
-        List<ItemDto> savedItemsDto = new ArrayList<>();
-        ItemDto savedItemDto = ItemDto.builder()
-                .id(savedItem.getId())
-                .name(savedItem.getName())
-                .description(savedItem.getDescription())
-                .build();
-        savedItemsDto.add(savedItemDto);
-
-        when(itemService.getAllItems(userId, from, size)).thenReturn(items);
+        when(itemService.getAllItems(userId, from, size)).thenReturn(savedItems);
 
         String result = mockMvc.perform(get("/items")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -355,26 +347,9 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void getAllItems_UserIdNull() {
-        Long userId = null;
-        int from = 0;
-        int size = 10;
-        List<Item> items = new ArrayList<>();
-        Item savedItem = Item.builder()
-                .id(1L)
-                .name("name")
-                .description("description")
-                .build();
-        items.add(savedItem);
+        Long userIdNull = null;
 
-        List<ItemDto> savedItemsDto = new ArrayList<>();
-        ItemDto savedItemDto = ItemDto.builder()
-                .id(savedItem.getId())
-                .name(savedItem.getName())
-                .description(savedItem.getDescription())
-                .build();
-        savedItemsDto.add(savedItemDto);
-
-        when(itemService.getAllItems(userId, from, size)).thenReturn(items);
+        when(itemService.getAllItems(userIdNull, from, size)).thenReturn(savedItems);
 
         String result = mockMvc.perform(get("/items")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -386,16 +361,12 @@ public class ItemControllerTest {
                 .getContentAsString();
 
         assertEquals(objectMapper.writeValueAsString(savedItemsDto), result);
-        verify(itemService, times(1)).getAllItems(userId, from, size);
+        verify(itemService, times(1)).getAllItems(userIdNull, from, size);
     }
 
     @SneakyThrows
     @Test
     public void getAllItems_Empty() {
-        Long userId = 1L;
-        int from = 0;
-        int size = 10;
-
         List<ItemDto> savedItemsDto = new ArrayList<>();
 
         when(itemService.getAllItems(userId, from, size)).thenReturn(new ArrayList<>());
@@ -417,14 +388,6 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void getItem_Normal() {
-        Long userId = 1L;
-        Item savedItem = Item.builder()
-                .id(1L)
-                .name("name")
-                .description("description")
-                .isAvailable(true)
-                .build();
-
         ItemDto expectedSavedItem = ItemDto.builder()
                 .id(savedItem.getId())
                 .name(savedItem.getName())
@@ -449,7 +412,6 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void getItem_NoSuchItem() {
-        Long userId = 1L;
         Long itemId = 999999L;
         when(itemService.getItem(itemId, userId)).
                 thenThrow(new ItemNotFoundException(String.format("Item id %s not found", itemId)));
@@ -469,27 +431,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void searchItem_Normal() {
-        String text = "name";
-        Long userId = 1L;
-        int from = 0;
-        int size = 10;
-        List<Item> items = new ArrayList<>();
-        Item savedItem = Item.builder()
-                .id(1L)
-                .name("name")
-                .description("description")
-                .build();
-        items.add(savedItem);
-
-        List<ItemDto> savedItemsDto = new ArrayList<>();
-        ItemDto savedItemDto = ItemDto.builder()
-                .id(savedItem.getId())
-                .name(savedItem.getName())
-                .description(savedItem.getDescription())
-                .build();
-        savedItemsDto.add(savedItemDto);
-
-        when(itemService.searchItem(text, userId, from, size)).thenReturn(items);
+        when(itemService.searchItem(text, userId, from, size)).thenReturn(savedItems);
 
         String result = mockMvc.perform(get("/items/search")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -509,11 +451,6 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void searchItem_Empty() {
-        String text = "name";
-        Long userId = 1L;
-        int from = 0;
-        int size = 10;
-
         List<ItemDto> savedItemsDto = new ArrayList<>();
 
         String result = mockMvc.perform(get("/items/search")
@@ -534,9 +471,6 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void deleteItem_Normal() {
-        Long itemId = 1L;
-        Long userId = 1L;
-
         mockMvc.perform(delete("/items/{itemId}", itemId)
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk());
@@ -547,60 +481,26 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void deleteItem_WrongUserId() {
-        Long itemId = 1L;
-        Long userId = -999L;
-
         mockMvc.perform(delete("/items/{itemId}", itemId)
-                        .header("X-Sharer-User-Id", userId))
+                        .header("X-Sharer-User-Id", wrongUserId))
                 .andExpect(status().isBadRequest());
 
-        verify(itemService, times(0)).deleteItem(itemId, userId);
+        verify(itemService, times(0)).deleteItem(itemId, wrongUserId);
     }
 
     @SneakyThrows
     @Test
     public void deleteItem_WrongItemId() {
-        Long itemId = -999L;
-        Long userId = 1L;
-
-        mockMvc.perform(delete("/items/{itemId}", itemId)
+        mockMvc.perform(delete("/items/{itemId}", wrongItemId)
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isBadRequest());
 
-        verify(itemService, times(0)).deleteItem(itemId, userId);
+        verify(itemService, times(0)).deleteItem(wrongItemId, userId);
     }
 
     @SneakyThrows
     @Test
     public void addComment_Normal() {
-        Long itemId = 1L;
-        Long userId = 1L;
-        CommentDto commentToAdd = CommentDto.builder()
-                .text("text")
-                .build();
-
-        User author = User.builder()
-                .id(userId)
-                .name("author name")
-                .build();
-
-        LocalDateTime now = LocalDateTime.now();
-
-        Comment savedComment = Comment.builder()
-                .id(1L)
-                .text(commentToAdd.getText())
-                .item(new Item())
-                .created(Timestamp.valueOf(now))
-                .author(author)
-                .build();
-
-        CommentDto expectedCommentDto = CommentDto.builder()
-                .id(savedComment.getId())
-                .text(savedComment.getText())
-                .authorName(author.getName())
-                .created(now)
-                .build();
-
         when(itemService.addComment(any(Comment.class))).thenReturn(savedComment);
 
         String result = mockMvc.perform(post("/items/{itemId}/comment", itemId)
@@ -616,5 +516,43 @@ public class ItemControllerTest {
         verify(itemService, times(1)).addComment(any(Comment.class));
     }
 
+    @SneakyThrows
+    @Test
+    public void addComment_BlankText() {
+        commentToAdd.setText("");
 
+        mockMvc.perform(post("/items/{itemId}/comment", itemId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentToAdd))
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isBadRequest());
+
+        commentToAdd.setText("   ");
+
+        mockMvc.perform(post("/items/{itemId}/comment", itemId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentToAdd))
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isBadRequest());
+
+        verify(itemService, times(0)).addComment(any(Comment.class));
+    }
+
+    @SneakyThrows
+    @Test
+    public void addComment_WrongId() {
+        mockMvc.perform(post("/items/{itemId}/comment", itemId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentToAdd))
+                        .header("X-Sharer-User-Id", wrongUserId))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(post("/items/{itemId}/comment", wrongItemId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentToAdd))
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isBadRequest());
+
+        verify(itemService, times(0)).addComment(any(Comment.class));
+    }
 }

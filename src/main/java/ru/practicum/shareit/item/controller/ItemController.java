@@ -118,7 +118,7 @@ public class ItemController {
     public CommentDto addComment(@PathVariable @Min(value = 1, message = "Item ID must be more than 0") Long itemId,
                                  @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
                                          message = "User ID must be more than 0") Long userId,
-                                 @RequestBody CommentDto commentDto) {
+                                 @RequestBody @Validated CommentDto commentDto) {
         log.info("Comment {} from user id {} to item {} received.", commentDto, userId, itemId);
         Comment comment = CommentMapper.mapFromDto(commentDto, userId, itemId);
         Comment savedComment = itemService.addComment(comment);

@@ -10,7 +10,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.anyString;
 
 @DataJpaTest
 public class UserRepositoryTest {
@@ -48,7 +47,7 @@ public class UserRepositoryTest {
 
     @Test
     public void findByEmailIgnoreCase_NoSuchEmail() {
-        User savedUser = userRepository.findByEmailIgnoreCase(anyString());
+        User savedUser = userRepository.findByEmailIgnoreCase("No such email");
         assertNull(savedUser);
     }
 }
