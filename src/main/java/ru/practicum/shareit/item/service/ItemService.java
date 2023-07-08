@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.exceptions.CommentNotAllowedException;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Comment;
@@ -178,7 +177,8 @@ public class ItemService {
         log.info("Bookings found: {}", b);
         if (!b.isEmpty()) {
             return b.get(0);
-        } else return null;
+        }
+        return null;
     }
 
     private Booking getNextBooking(Long itemId, Timestamp now) {
@@ -186,6 +186,7 @@ public class ItemService {
         log.info("Bookings found: {}", b);
         if (!b.isEmpty()) {
             return b.get(0);
-        } else return null;
+        }
+        return null;
     }
 }
