@@ -10,20 +10,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.item.exceptions.CommentNotAllowedException;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,9 +49,12 @@ public class ItemServiceTest {
     private Item itemToUpdate;
     private Item savedItem;
     private Item updatedItem;
+    private Comment commentToSave;
+    private Comment savedComment;
     private User user;
     private List<Item> savedItems;
     private Long wrongUserId = 999999L;
+    private Timestamp now = Timestamp.valueOf(LocalDateTime.now());
     private int from = 0;
     private int size = 10;
     private PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
@@ -110,6 +114,20 @@ public class ItemServiceTest {
         nextBookings = new ArrayList<>();
         lastBookings.add(lastBooking);
         nextBookings.add(nextBooking);
+
+        commentToSave = Comment.builder()
+                .text("comment")
+                .author(user)
+                .item(savedItem)
+                .build();
+
+        savedComment = Comment.builder()
+                .id(1L)
+                .text(commentToSave.getText())
+                .item(commentToSave.getItem())
+                .author(commentToSave.getAuthor())
+                .created(now)
+                .build();
     }
 
     @Test
@@ -311,5 +329,97 @@ public class ItemServiceTest {
                         anyString(), any(PageRequest.class));
     }
 
+    @Test
+    public void deleteItem_Normal() {
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(savedItem));
 
+        itemService.deleteItem(savedItem.getId(), savedItem.getOwnerId());
+
+        verify(itemRepository, times(1)).deleteById(savedItem.getId());
+    }
+
+    @Test
+    public void deleteItem_NoSuchItem() {
+        when(itemRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Throwable e = assertThrows(ItemNotFoundException.class, () ->
+                itemService.deleteItem(savedItem.getId(), savedItem.getOwnerId()));
+
+        assertEquals(String.format("Item id %s not found", savedItem.getId()), e.getMessage());
+        verify(itemRepository, never()).deleteById(savedItem.getId());
+    }
+
+    @Test
+    public void deleteItem_NotAuthorized() {
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(savedItem));
+
+        Throwable e = assertThrows(ItemNotFoundException.class, () ->
+                itemService.deleteItem(savedItem.getId(), wrongUserId));
+
+        assertEquals(String.format("Item id %s not found", savedItem.getId()), e.getMessage());
+        verify(itemRepository, never()).deleteById(savedItem.getId());
+    }
+
+    @Test
+    public void addComment_Normal() {
+        when(itemRepository.findById(commentToSave.getItem().getId()))
+                .thenReturn(Optional.of(savedItem));
+        when(userRepository.findById(commentToSave.getAuthor().getId()))
+                .thenReturn(Optional.of(user));
+
+        List<Booking> bookings = new ArrayList<>();
+        bookings.add(lastBooking);
+        bookings.add(nextBooking);
+
+        when(bookingRepository.findByItemIdAndBookerIdAndStatusNotAndStartDateBefore(anyLong(),
+                anyLong(), any(Status.class), any(Timestamp.class))).thenReturn(bookings);
+        when(commentRepository.save(any(Comment.class))).thenReturn(savedComment);
+
+        Comment result = itemService.addComment(commentToSave);
+        assertEquals(savedComment, result);
+        verify(commentRepository, times(1)).save(any(Comment.class));
+    }
+
+    @Test
+    public void addComment_noSuchItem() {
+        when(itemRepository.findById(commentToSave.getItem().getId())).thenReturn(Optional.empty());
+
+        Throwable e = assertThrows(ItemNotFoundException.class, () ->
+                itemService.addComment(commentToSave));
+
+        assertEquals(String.format("Item id %s not found", commentToSave.getItem().getId()), e.getMessage());
+        verify(userRepository, never()).findById(anyLong());
+        verify(bookingRepository, never())
+                .findByItemIdAndBookerIdAndStatusNotAndStartDateBefore(anyLong(), anyLong(),
+                        any(Status.class), any(Timestamp.class));
+        verify(commentRepository, never()).save(any(Comment.class));
+    }
+
+    @Test
+    public void addComment_noSuchUser() {
+        when(itemRepository.findById(commentToSave.getItem().getId())).thenReturn(Optional.of(savedItem));
+        when(userRepository.findById(commentToSave.getAuthor().getId())).thenReturn(Optional.empty());
+
+        Throwable e = assertThrows(UserNotFoundException.class, () ->
+                itemService.addComment(commentToSave));
+
+        assertEquals(String.format("User id %s not found", commentToSave.getAuthor().getId()), e.getMessage());
+        verify(bookingRepository, never())
+                .findByItemIdAndBookerIdAndStatusNotAndStartDateBefore(anyLong(), anyLong(),
+                        any(Status.class), any(Timestamp.class));
+        verify(commentRepository, never()).save(any(Comment.class));
+    }
+
+    @Test
+    public void addComment_userDidNotBook() {
+        when(itemRepository.findById(commentToSave.getItem().getId())).thenReturn(Optional.of(savedItem));
+        when(userRepository.findById(commentToSave.getAuthor().getId())).thenReturn(Optional.of(user));
+
+        Throwable e = assertThrows(CommentNotAllowedException.class, () ->
+                itemService.addComment(commentToSave));
+
+        assertEquals(String.format("User id %s did not book item and cannot leave comment",
+                commentToSave.getAuthor().getId()), e.getMessage());
+        verify(commentRepository, never()).save(any(Comment.class));
+    }
 }

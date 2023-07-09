@@ -14,6 +14,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -127,7 +128,7 @@ public class ItemService {
             return new ItemNotFoundException(String.format("Item id %s not found", itemId));
         });
 
-        if (!savedItem.getOwnerId().equals(itemId)) {
+        if (!savedItem.getOwnerId().equals(userId)) {
             log.info("Item {} does not belong to user {}.", itemId, userId);
             throw new ItemNotFoundException(String.format("Item id %s not found", itemId));
         }
@@ -144,7 +145,7 @@ public class ItemService {
 
         User user = userRepository.findById(comment.getAuthor().getId()).orElseThrow(() -> {
             log.info("Item id {} not found ", comment.getAuthor().getId());
-            return new ItemNotFoundException(String.format("User id %s not found", comment.getAuthor().getId()));
+            return new UserNotFoundException(String.format("User id %s not found", comment.getAuthor().getId()));
         });
         comment.setAuthor(user);
 
