@@ -23,7 +23,7 @@ public class RequestController {
     }
 
     @PostMapping
-    public RequestDto addRequest(@RequestBody RequestDto requestDto,
+    public RequestDto addRequest(@RequestBody @Validated RequestDto requestDto,
                                  @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
                                          message = "User id should be more than 0") Long requesterId) {
 

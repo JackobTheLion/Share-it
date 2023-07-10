@@ -41,13 +41,7 @@ public class RequestService {
         Request request = mapFromDto(requestDto);
         request.setRequester(requester);
         request.setCreated(Timestamp.valueOf(LocalDateTime.now()));
-        Request savedRequest;
-        try {
-            savedRequest = requestRepository.save(request);
-        } catch (DataIntegrityViolationException e) {
-            log.error(e.getMessage());
-            throw new ValidationException("Description cannot be null.");
-        }
+        Request savedRequest = requestRepository.save(request);
         log.info("Request saved: {}", savedRequest);
         return mapToDto(savedRequest);
     }
