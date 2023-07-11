@@ -413,8 +413,8 @@ public class ItemControllerTest {
     @Test
     public void getItem_NoSuchItem() {
         Long itemId = 999999L;
-        when(itemService.getItem(itemId, userId)).
-                thenThrow(new ItemNotFoundException(String.format("Item id %s not found", itemId)));
+        when(itemService.getItem(itemId, userId))
+                .thenThrow(new ItemNotFoundException(String.format("Item id %s not found", itemId)));
 
         String result = mockMvc.perform(get("/items/{itemId}", itemId)
                         .contentType(MediaType.APPLICATION_JSON)
