@@ -62,7 +62,7 @@ public class ItemRepositoryTest {
     }
 
     @AfterEach
-    public void afterAll() {
+    public void afterEach() {
         userRepository.deleteAll();
     }
 
@@ -75,7 +75,7 @@ public class ItemRepositoryTest {
                 .ownerId(item1.getOwnerId())
                 .build();
 
-        List<Item> savedItems = itemRepository.findAllByOwnerId(1L, page).getContent();
+        List<Item> savedItems = itemRepository.findAllByOwnerId(savedUser1.getId(), page).getContent();
 
         assertEquals(1, savedItems.size());
         assertEquals(expectedItem.getName(), savedItems.get(0).getName());
