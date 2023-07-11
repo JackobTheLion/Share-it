@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.exceptions.RequestNotFoundException;
 import ru.practicum.shareit.request.model.Request;
@@ -41,6 +43,11 @@ public class RequestServiceTest {
     private RequestDto requestDtoToSave;
     private RequestDto savedRequestDto;
     private Request savedRequest;
+    private Long requestId = 1L;
+    private Item requestItem;
+    private ItemRequestDto requestItemDto;
+    private List<Item> requestItems;
+    private List<ItemRequestDto> requestItemsDto;
     private User requester;
     private Long userId = 1L;
     private Timestamp now = Timestamp.valueOf(LocalDateTime.now());
@@ -61,20 +68,43 @@ public class RequestServiceTest {
                 .build();
 
         savedRequest = Request.builder()
-                .id(1L)
+                .id(requestId)
                 .description(requestDtoToSave.getDescription())
                 .created(now)
                 .requester(requester)
+                .items(requestItems)
                 .build();
 
         savedRequestDto = RequestDto.builder()
                 .id(savedRequest.getId())
                 .description(savedRequest.getDescription())
                 .created(savedRequest.getCreated().toLocalDateTime())
+                .items(requestItemsDto)
                 .build();
 
         requests = new ArrayList<>();
         requests.add(savedRequest);
+
+        requestItem = Item.builder()
+                .id(1L)
+                .name("name")
+                .description("description")
+                .ownerId(1L)
+                .isAvailable(true)
+                .request(savedRequest)
+                .build();
+        requestItems = new ArrayList<>();
+        requestItems.add(requestItem);
+
+        requestItemDto = ItemRequestDto.builder()
+                .id(requestItem.getId())
+                .name(requestItem.getName())
+                .description(requestItem.getDescription())
+                .available(requestItem.getIsAvailable())
+                .requestId(requestId)
+                .build();
+        requestItemsDto = new ArrayList<>();
+        requestItemsDto.add(requestItemDto);
     }
 
     @Test

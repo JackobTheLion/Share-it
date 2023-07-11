@@ -86,17 +86,17 @@ public class BookingService {
         return savedBookingDto;
     }
 
-    public BookingDto findBooking(Long bookingId, Long userId) {
-        log.info("Looking for booking id {} by user id {}", bookingId, userId);
-        getUser(userId);
+    public BookingDto findBooking(Long bookingId, Long bookerId) {
+        log.info("Looking for booking id {} by user id {}", bookingId, bookerId);
+        getUser(bookerId);
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> {
             log.error("Booking id {} not found.", bookingId);
             return new BookingNotFoundException(String.format("Booking id %s not found.", bookingId));
         });
         log.info("Booking found: {}.", booking);
 
-        if (!(booking.getItem().getOwnerId().equals(userId) || booking.getBooker().getId().equals(userId))) {
-            log.error("User id {} has no access to booking id {}", userId, booking);
+        if (!(booking.getItem().getOwnerId().equals(bookerId) || booking.getBooker().getId().equals(bookerId))) {
+            log.error("User id {} has no access to booking id {}", bookerId, booking);
             throw new BookingNotFoundException(String.format("Booking id %s not found.", bookingId));
         }
         BookingDto bookingDto = BookingMapper.mapToDto(booking);
@@ -104,32 +104,32 @@ public class BookingService {
         return bookingDto;
     }
 
-    public List<BookingDto> getUserBookings(Long userId, String state, int from, int size) {
-        log.info("Looking for bookings of user {} with status {}", userId, state);
-        getUser(userId);
+    public List<BookingDto> getUserBookings(Long bookerId, String state, int from, int size) {
+        log.info("Looking for bookings of user {} with status {}", bookerId, state);
+        getUser(bookerId);
         Page<Booking> bookings;
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         Timestamp now = Timestamp.valueOf(LocalDateTime.now());
         log.info("Now is: {}.", now);
         switch (state) {
             case "ALL":
-                bookings = bookingRepository.findByBookerIdOrderByStartDateDesc(userId, page);
+                bookings = bookingRepository.findByBookerIdOrderByStartDateDesc(bookerId, page);
                 break;
             case "CURRENT":
-                bookings = bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(userId,
+                bookings = bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(bookerId,
                         now, now, page);
                 break;
             case "PAST":
-                bookings = bookingRepository.findByBookerIdAndEndDateBeforeOrderByStartDateDesc(userId, now, page);
+                bookings = bookingRepository.findByBookerIdAndEndDateBeforeOrderByStartDateDesc(bookerId, now, page);
                 break;
             case "FUTURE":
-                bookings = bookingRepository.findByBookerIdAndStartDateAfterOrderByStartDateDesc(userId, now, page);
+                bookings = bookingRepository.findByBookerIdAndStartDateAfterOrderByStartDateDesc(bookerId, now, page);
                 break;
             case "WAITING":
-                bookings = bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDateDesc(userId, WAITING, page);
+                bookings = bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDateDesc(bookerId, WAITING, page);
                 break;
             case "REJECTED":
-                bookings = bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDateDesc(userId, REJECTED, page);
+                bookings = bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDateDesc(bookerId, REJECTED, page);
                 break;
             default:
                 log.error("Incorrect 'state' value: {}", state);
@@ -173,14 +173,15 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingDto approveBooking(Long userId, Boolean approved, Long bookingId) {
-        log.info("Updating booking id {} as {} by user id {}", bookingId, approved, userId);
+    public BookingDto approveBooking(Long ownerId, Boolean approved, Long bookingId) {
+        log.info("Updating booking id {} as {} by user id {}", bookingId, approved, ownerId);
+        getUser(ownerId);
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> {
             log.error("Booking id {} not found.", bookingId);
             return new BookingNotFoundException(String.format("Booking id %s not found.", bookingId));
         });
-        if (!booking.getItem().getOwnerId().equals(userId)) {
-            log.error("User id {} has no access to booking id {}", userId, booking);
+        if (!booking.getItem().getOwnerId().equals(ownerId)) {
+            log.error("User id {} has no access to booking id {}", ownerId, booking);
             throw new BookingNotFoundException(String.format("Booking id %s not found.", bookingId));
         }
 
