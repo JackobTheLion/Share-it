@@ -6,6 +6,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.dto.UserResponseDto;
 
@@ -30,7 +31,7 @@ public class BookingDto {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDateTime end;
 
-    private ItemDto item;
+    private ItemResponseDto item;
 
     private UserResponseDto booker;
 

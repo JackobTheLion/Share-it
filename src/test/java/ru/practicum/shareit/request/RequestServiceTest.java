@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.dto.ItemInRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.exceptions.RequestNotFoundException;
@@ -45,9 +45,9 @@ public class RequestServiceTest {
     private Request savedRequest;
     private Long requestId = 1L;
     private Item requestItem;
-    private ItemRequestDto requestItemDto;
+    private ItemInRequestDto requestItemDto;
     private List<Item> requestItems;
-    private List<ItemRequestDto> requestItemsDto;
+    private List<ItemInRequestDto> requestItemsDto;
     private User requester;
     private Long userId = 1L;
     private Timestamp now = Timestamp.valueOf(LocalDateTime.now());
@@ -96,7 +96,7 @@ public class RequestServiceTest {
         requestItems = new ArrayList<>();
         requestItems.add(requestItem);
 
-        requestItemDto = ItemRequestDto.builder()
+        requestItemDto = ItemInRequestDto.builder()
                 .id(requestItem.getId())
                 .name(requestItem.getName())
                 .description(requestItem.getDescription())

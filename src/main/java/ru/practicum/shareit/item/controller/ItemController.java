@@ -6,6 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -35,8 +36,8 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto addItem(@NotNull @Validated(ValidationGroups.Create.class) @RequestBody ItemDto itemDto,
-                           @RequestHeader(value = "X-Sharer-User-Id")
+    public ItemResponseDto addItem(@NotNull @Validated(ValidationGroups.Create.class) @RequestBody ItemDto itemDto,
+                                   @RequestHeader(value = "X-Sharer-User-Id")
                            @Min(value = 1, message = "User ID must be more than 0") Long userId) {
 
         log.info("Adding item {} by user {}", itemDto, userId);
@@ -48,7 +49,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@NotNull @Validated(ValidationGroups.Update.class) @RequestBody ItemDto itemDto,
+    public ItemResponseDto updateItem(@NotNull @Validated(ValidationGroups.Update.class) @RequestBody ItemDto itemDto,
                               @PathVariable @Min(value = 1, message = "Item ID must be more than 0") Long itemId,
                               @RequestHeader(value = "X-Sharer-User-Id")
                               @Min(value = 1, message = "User ID must be more than 0") Long userId) {
@@ -57,13 +58,13 @@ public class ItemController {
         Item item = mapFromDto(itemDto, itemId, userId);
         log.info("Item mapped from DTO: {}", item);
         Item updatedItem = itemService.updateItem(item);
-        ItemDto updatedItemDto = mapToDto(updatedItem);
-        log.info("Updated item mapped to DTO: {}", updatedItemDto);
-        return updatedItemDto;
+        ItemResponseDto updatedItemResponseDto = mapToDto(updatedItem);
+        log.info("Updated item mapped to DTO: {}", updatedItemResponseDto);
+        return updatedItemResponseDto;
     }
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
+    public List<ItemResponseDto> getAllItems(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
                                      @RequestParam(defaultValue = "0") @Min(value = 0,
                                              message = "Parameter 'from' must be more than 0") int from,
                                      @RequestParam(defaultValue = "10") @Min(value = 0,
@@ -79,19 +80,19 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@PathVariable Long itemId,
+    public ItemResponseDto getItem(@PathVariable Long itemId,
                            @RequestHeader(value = "X-Sharer-User-Id", required = false) @Min(value = 1,
                                    message = "User ID must be more than 0") Long userId) {
         log.info("Looking for item id {} by user {}", itemId, userId);
         Item item = itemService.getItem(itemId, userId);
         log.info("Item found: {}", item);
-        ItemDto itemDto = mapToDto(item);
-        log.info("Item mapped to DTO: {}", itemDto);
-        return itemDto;
+        ItemResponseDto itemResponseDto = mapToDto(item);
+        log.info("Item mapped to DTO: {}", itemResponseDto);
+        return itemResponseDto;
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestParam String text,
+    public List<ItemResponseDto> searchItem(@RequestParam String text,
                                     @RequestHeader("X-Sharer-User-Id") @Min(value = 1,
                                             message = "User ID must be more than 0") Long userId,
                                     @RequestParam(defaultValue = "0") @Min(value = 0,
