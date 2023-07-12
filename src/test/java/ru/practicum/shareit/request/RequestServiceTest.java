@@ -10,7 +10,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.item.dto.ItemInRequestDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.dto.RequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestRequestDto;
 import ru.practicum.shareit.request.exceptions.RequestNotFoundException;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.repository.RequestRepository;
@@ -40,8 +40,8 @@ public class RequestServiceTest {
     @InjectMocks
     private RequestService requestService;
 
-    private RequestDto requestDtoToSave;
-    private RequestDto savedRequestDto;
+    private ItemRequestRequestDto itemRequestRequestDtoToSave;
+    private ItemRequestRequestDto savedItemRequestRequestDto;
     private Request savedRequest;
     private Long requestId = 1L;
     private Item requestItem;
@@ -62,20 +62,20 @@ public class RequestServiceTest {
                 .id(userId)
                 .build();
 
-        requestDtoToSave = RequestDto.builder()
+        itemRequestRequestDtoToSave = ItemRequestRequestDto.builder()
                 .description("description")
                 .requesterId(requester.getId())
                 .build();
 
         savedRequest = Request.builder()
                 .id(requestId)
-                .description(requestDtoToSave.getDescription())
+                .description(itemRequestRequestDtoToSave.getDescription())
                 .created(now)
                 .requester(requester)
                 .items(requestItems)
                 .build();
 
-        savedRequestDto = RequestDto.builder()
+        savedItemRequestRequestDto = ItemRequestRequestDto.builder()
                 .id(savedRequest.getId())
                 .description(savedRequest.getDescription())
                 .created(savedRequest.getCreated().toLocalDateTime())
@@ -112,9 +112,9 @@ public class RequestServiceTest {
         when(userRepository.findById(requester.getId())).thenReturn(Optional.of(requester));
         when(requestRepository.save(any(Request.class))).thenReturn(savedRequest);
 
-        RequestDto actualRequest = requestService.addRequest(requestDtoToSave);
+        ItemRequestRequestDto actualRequest = requestService.addRequest(itemRequestRequestDtoToSave);
 
-        assertEquals(savedRequestDto, actualRequest);
+        assertEquals(savedItemRequestRequestDto, actualRequest);
         verify(requestRepository).save(any(Request.class));
     }
 
@@ -122,9 +122,9 @@ public class RequestServiceTest {
     public void addRequest_NoSuchUser() {
         when(userRepository.findById(requester.getId())).thenReturn(Optional.empty());
 
-        Throwable e = assertThrows(UserNotFoundException.class, () -> requestService.addRequest(requestDtoToSave));
+        Throwable e = assertThrows(UserNotFoundException.class, () -> requestService.addRequest(itemRequestRequestDtoToSave));
 
-        assertEquals(String.format("User id %s not found.", requestDtoToSave.getRequesterId()), e.getMessage());
+        assertEquals(String.format("User id %s not found.", itemRequestRequestDtoToSave.getRequesterId()), e.getMessage());
         verify(requestRepository, never()).save(any(Request.class));
     }
 
@@ -133,9 +133,9 @@ public class RequestServiceTest {
         when(userRepository.findById(requester.getId())).thenReturn(Optional.of(requester));
         when(requestRepository.findById(savedRequest.getId())).thenReturn(Optional.of(savedRequest));
 
-        RequestDto actualRequest = requestService.findRequest(savedRequest.getId(), userId);
+        ItemRequestRequestDto actualRequest = requestService.findRequest(savedRequest.getId(), userId);
 
-        assertEquals(savedRequestDto, actualRequest);
+        assertEquals(savedItemRequestRequestDto, actualRequest);
     }
 
     @Test
@@ -154,10 +154,10 @@ public class RequestServiceTest {
         when(userRepository.findById(requester.getId())).thenReturn(Optional.of(requester));
         when(requestRepository.findAllByRequesterId(userId, page)).thenReturn(new PageImpl<>(requests));
 
-        List<RequestDto> result = requestService.findUserRequest(userId, from, size);
+        List<ItemRequestRequestDto> result = requestService.findUserRequest(userId, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedRequestDto, result.get(0));
+        assertEquals(savedItemRequestRequestDto, result.get(0));
     }
 
     @Test
@@ -176,7 +176,7 @@ public class RequestServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(requester));
         when(requestRepository.findAllByRequesterId(anyLong(), any(PageRequest.class))).thenReturn(new PageImpl<>(new ArrayList<>()));
 
-        List<RequestDto> result = requestService.findUserRequest(userId, from, size);
+        List<ItemRequestRequestDto> result = requestService.findUserRequest(userId, from, size);
 
         assertTrue(result.isEmpty());
         verify(requestRepository, times(1)).findAllByRequesterId(anyLong(), any(PageRequest.class));
@@ -186,17 +186,17 @@ public class RequestServiceTest {
     public void findAllRequests_Normal() {
         when(requestRepository.findAllOrderByCreated(userId, page)).thenReturn(new PageImpl<>(requests));
 
-        List<RequestDto> result = requestService.findAllRequests(userId, from, size);
+        List<ItemRequestRequestDto> result = requestService.findAllRequests(userId, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedRequestDto, result.get(0));
+        assertEquals(savedItemRequestRequestDto, result.get(0));
     }
 
     @Test
     public void findAllRequests_Empty() {
         when(requestRepository.findAllOrderByCreated(userId, page)).thenReturn(new PageImpl<>(new ArrayList<>()));
 
-        List<RequestDto> result = requestService.findAllRequests(userId, from, size);
+        List<ItemRequestRequestDto> result = requestService.findAllRequests(userId, from, size);
 
         assertTrue(result.isEmpty());
     }

@@ -12,7 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exceptions.handler.ErrorHandler;
 import ru.practicum.shareit.request.controller.RequestController;
-import ru.practicum.shareit.request.dto.RequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestRequestDto;
 import ru.practicum.shareit.request.service.RequestService;
 import ru.practicum.shareit.user.model.User;
 
@@ -38,8 +38,8 @@ public class RequestControllerTest {
 
     @MockBean
     private RequestService requestService;
-    private RequestDto requestToSaveDto;
-    private RequestDto savedRequestDto;
+    private ItemRequestRequestDto requestToSaveDto;
+    private ItemRequestRequestDto savedItemRequestRequestDto;
 
     private User requester;
     private LocalDateTime now = LocalDateTime.now();
@@ -47,11 +47,11 @@ public class RequestControllerTest {
     private Long wrongUserId = -9999L;
     private int from = 0;
     private int size = 10;
-    private List<RequestDto> requests;
+    private List<ItemRequestRequestDto> requests;
 
     @BeforeEach
     public void beforeEach() {
-        requestToSaveDto = RequestDto.builder()
+        requestToSaveDto = ItemRequestRequestDto.builder()
                 .description("description")
                 .build();
 
@@ -60,7 +60,7 @@ public class RequestControllerTest {
                 .name("author name")
                 .build();
 
-        savedRequestDto = RequestDto.builder()
+        savedItemRequestRequestDto = ItemRequestRequestDto.builder()
                 .id(1L)
                 .description(requestToSaveDto.getDescription())
                 .requesterId(requester.getId())
@@ -68,13 +68,13 @@ public class RequestControllerTest {
                 .build();
 
         requests = new ArrayList<>();
-        requests.add(savedRequestDto);
+        requests.add(savedItemRequestRequestDto);
     }
 
     @SneakyThrows
     @Test
     public void addRequest_Normal() {
-        when(requestService.addRequest(any(RequestDto.class))).thenReturn(savedRequestDto);
+        when(requestService.addRequest(any(ItemRequestRequestDto.class))).thenReturn(savedItemRequestRequestDto);
 
         String result = mockMvc.perform(post("/requests")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -85,7 +85,7 @@ public class RequestControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(savedRequestDto), result);
+        assertEquals(objectMapper.writeValueAsString(savedItemRequestRequestDto), result);
     }
 
     @SneakyThrows
@@ -107,7 +107,7 @@ public class RequestControllerTest {
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isBadRequest());
 
-        verify(requestService, never()).addRequest(any(RequestDto.class));
+        verify(requestService, never()).addRequest(any(ItemRequestRequestDto.class));
     }
 
     @SneakyThrows
@@ -123,15 +123,15 @@ public class RequestControllerTest {
                 .getContentAsString();
 
         assertEquals("{\"error\":\"addRequest.requesterId: User id should be more than 0\"}", result);
-        verify(requestService, never()).addRequest(any(RequestDto.class));
+        verify(requestService, never()).addRequest(any(ItemRequestRequestDto.class));
     }
 
     @SneakyThrows
     @Test
     public void getRequest_Normal() {
-        when(requestService.findRequest(savedRequestDto.getId(), userId)).thenReturn(savedRequestDto);
+        when(requestService.findRequest(savedItemRequestRequestDto.getId(), userId)).thenReturn(savedItemRequestRequestDto);
 
-        String result = mockMvc.perform(get("/requests/{requestId}", savedRequestDto.getId())
+        String result = mockMvc.perform(get("/requests/{requestId}", savedItemRequestRequestDto.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
@@ -139,14 +139,14 @@ public class RequestControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(savedRequestDto), result);
+        assertEquals(objectMapper.writeValueAsString(savedItemRequestRequestDto), result);
     }
 
     @SneakyThrows
     @Test
     public void getOwnRequests_Normal() {
-        List<RequestDto> requests = new ArrayList<>();
-        requests.add(savedRequestDto);
+        List<ItemRequestRequestDto> requests = new ArrayList<>();
+        requests.add(savedItemRequestRequestDto);
 
         when(requestService.findUserRequest(userId, from, size)).thenReturn(requests);
 

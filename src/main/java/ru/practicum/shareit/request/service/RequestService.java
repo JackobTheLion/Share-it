@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.request.dto.RequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.exceptions.RequestNotFoundException;
 import ru.practicum.shareit.request.mapper.RequestMapper;
 import ru.practicum.shareit.request.model.Request;
@@ -33,10 +34,10 @@ public class RequestService {
         this.userRepository = userRepository;
     }
 
-    public RequestDto addRequest(RequestDto requestDto) {
-        log.info("Adding request: {}", requestDto);
-        User requester = doesUserExist(requestDto.getRequesterId());
-        Request request = mapFromDto(requestDto);
+    public ItemRequestResponseDto addRequest(ItemRequestRequestDto itemRequestRequestDto) {
+        log.info("Adding request: {}", itemRequestRequestDto);
+        User requester = doesUserExist(itemRequestRequestDto.getRequesterId());
+        Request request = mapFromDto(itemRequestRequestDto);
         request.setRequester(requester);
         request.setCreated(Timestamp.valueOf(LocalDateTime.now()));
         Request savedRequest = requestRepository.save(request);
@@ -44,7 +45,7 @@ public class RequestService {
         return mapToDto(savedRequest);
     }
 
-    public RequestDto findRequest(Long requestId, Long userId) {
+    public ItemRequestResponseDto findRequest(Long requestId, Long userId) {
         log.info("Looking for request id {} by user {}", requestId, userId);
         doesUserExist(userId);
         Request request = requestRepository.findById(requestId).orElseThrow(() -> {
@@ -55,7 +56,7 @@ public class RequestService {
         return mapToDto(request);
     }
 
-    public List<RequestDto> findUserRequest(Long userId, int from, int size) {
+    public List<ItemRequestResponseDto> findUserRequest(Long userId, int from, int size) {
         log.info("Looking for requests from user id {}. Paging from {}, size {}.", userId, from, size);
         doesUserExist(userId);
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
@@ -63,7 +64,7 @@ public class RequestService {
         return requests.map(RequestMapper::mapToDto).getContent();
     }
 
-    public List<RequestDto> findAllRequests(Long userId, int from, int size) {
+    public List<ItemRequestResponseDto> findAllRequests(Long userId, int from, int size) {
         log.info("Looking for requests/ Paging from {}, size {}.", from, size);
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         Page<Request> requests = requestRepository.findAllOrderByCreated(userId, page);

@@ -14,7 +14,7 @@ import static com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY;
 
 @Data
 @Builder
-public class RequestDto {
+public class ItemRequestRequestDto {
     private Long id;
 
     @NotBlank(message = "Description cannot be empty.")
@@ -23,7 +23,6 @@ public class RequestDto {
     @JsonProperty(access = WRITE_ONLY)
     private Long requesterId;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDateTime created;
 
     private List<ItemInRequestDto> items;
