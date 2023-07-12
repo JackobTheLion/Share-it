@@ -11,7 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.controller.BookingController;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exceptions.handler.ErrorHandler;
@@ -39,9 +39,9 @@ public class BookingControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private BookingService bookingService;
-    private BookingDto bookingToSave;
-    private BookingDto savedBookingDto;
-    private List<BookingDto> bookings;
+    private BookingRequestDto bookingToSave;
+    private BookingRequestDto savedBookingRequestDto;
+    private List<BookingRequestDto> bookings;
     private ItemDto itemDto;
     private Long itemId = 1L;
     private UserRequestDto userRequestDto;
@@ -61,13 +61,13 @@ public class BookingControllerTest {
                 .id(itemId)
                 .build();
 
-        bookingToSave = BookingDto.builder()
+        bookingToSave = BookingRequestDto.builder()
                 .itemId(itemId)
                 .start(start)
                 .end(end)
                 .build();
 
-        savedBookingDto = BookingDto.builder()
+        savedBookingRequestDto = BookingRequestDto.builder()
                 .id(1L)
                 .start(start)
                 .end(end)
@@ -77,13 +77,13 @@ public class BookingControllerTest {
                 .build();
 
         bookings = new ArrayList<>();
-        bookings.add(savedBookingDto);
+        bookings.add(savedBookingRequestDto);
     }
 
     @SneakyThrows
     @Test
     public void addBooking_Normal() {
-        when(bookingService.createBooking(any(BookingDto.class), anyLong())).thenReturn(savedBookingDto);
+        when(bookingService.createBooking(any(BookingRequestDto.class), anyLong())).thenReturn(savedBookingRequestDto);
 
         String result = mockMvc.perform(post("/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -94,15 +94,15 @@ public class BookingControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(savedBookingDto), result);
+        assertEquals(objectMapper.writeValueAsString(savedBookingRequestDto), result);
     }
 
     @SneakyThrows
     @Test
     public void getBooking_Normal() {
-        when(bookingService.findBooking(savedBookingDto.getId(), userId)).thenReturn(savedBookingDto);
+        when(bookingService.findBooking(savedBookingRequestDto.getId(), userId)).thenReturn(savedBookingRequestDto);
 
-        String result = mockMvc.perform(get("/bookings/{bookingId}", savedBookingDto.getId())
+        String result = mockMvc.perform(get("/bookings/{bookingId}", savedBookingRequestDto.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
@@ -110,7 +110,7 @@ public class BookingControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(savedBookingDto), result);
+        assertEquals(objectMapper.writeValueAsString(savedBookingRequestDto), result);
     }
 
     @SneakyThrows
@@ -154,11 +154,11 @@ public class BookingControllerTest {
     @SneakyThrows
     @Test
     public void updateBooking_Normal() {
-        BookingDto updatedBooking = savedBookingDto;
+        BookingRequestDto updatedBooking = savedBookingRequestDto;
         updatedBooking.setStatus(Status.APPROVED);
-        when(bookingService.approveBooking(userId, true, savedBookingDto.getId())).thenReturn(updatedBooking);
+        when(bookingService.approveBooking(userId, true, savedBookingRequestDto.getId())).thenReturn(updatedBooking);
 
-        String result = mockMvc.perform(patch("/bookings/{bookingId}", savedBookingDto.getId())
+        String result = mockMvc.perform(patch("/bookings/{bookingId}", savedBookingRequestDto.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("approved", "true")
                         .header("X-Sharer-User-Id", userId))

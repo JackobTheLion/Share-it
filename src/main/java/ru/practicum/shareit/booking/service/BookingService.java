@@ -6,7 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.exceptions.BookingNotAloudException;
 import ru.practicum.shareit.booking.exceptions.BookingNotFoundException;
 import ru.practicum.shareit.booking.exceptions.ItemNotAvailableException;
@@ -42,9 +43,9 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingDto createBooking(BookingDto bookingDto, Long bookerId) {
-        log.info("Adding booking: {} by user {}", bookingDto, bookerId);
-        Booking booking = BookingMapper.mapFromDto(bookingDto, bookerId, WAITING);
+    public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto, Long bookerId) {
+        log.info("Adding booking: {} by user {}", bookingRequestDto, bookerId);
+        Booking booking = BookingMapper.mapFromDto(bookingRequestDto, bookerId, WAITING);
         log.info("Booking mapped: {}.", booking);
 
         if (booking.getEndDate().before(booking.getStartDate()) || booking.getStartDate().equals(booking.getEndDate())) {
@@ -81,12 +82,12 @@ public class BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
         log.info("Booking saved: {}", savedBooking);
-        BookingDto savedBookingDto = BookingMapper.mapToDto(savedBooking, user, item);
-        log.info("Booking mapped to DTO: {}", savedBookingDto);
-        return savedBookingDto;
+        BookingResponseDto savedBookingRequestDto = BookingMapper.mapToDto(savedBooking, user, item);
+        log.info("Booking mapped to DTO: {}", savedBookingRequestDto);
+        return savedBookingRequestDto;
     }
 
-    public BookingDto findBooking(Long bookingId, Long bookerId) {
+    public BookingResponseDto findBooking(Long bookingId, Long bookerId) {
         log.info("Looking for booking id {} by user id {}", bookingId, bookerId);
         getUser(bookerId);
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> {
@@ -99,12 +100,12 @@ public class BookingService {
             log.error("User id {} has no access to booking id {}", bookerId, booking);
             throw new BookingNotFoundException(String.format("Booking id %s not found.", bookingId));
         }
-        BookingDto bookingDto = BookingMapper.mapToDto(booking);
-        log.info("Booking mapped to DTO: {}", bookingDto);
-        return bookingDto;
+        BookingResponseDto bookingRequestDto = BookingMapper.mapToDto(booking);
+        log.info("Booking mapped to DTO: {}", bookingRequestDto);
+        return bookingRequestDto;
     }
 
-    public List<BookingDto> getUserBookings(Long bookerId, String state, int from, int size) {
+    public List<BookingResponseDto> getUserBookings(Long bookerId, String state, int from, int size) {
         log.info("Looking for bookings of user {} with status {}", bookerId, state);
         getUser(bookerId);
         Page<Booking> bookings;
@@ -138,7 +139,7 @@ public class BookingService {
         return bookings.map(BookingMapper::mapToDto).getContent();
     }
 
-    public List<BookingDto> getOwnerBooking(Long userId, String state, int from, int size) {
+    public List<BookingResponseDto> getOwnerBooking(Long userId, String state, int from, int size) {
         log.info("Looking for bookings of owner {} with status {}", userId, state);
         getUser(userId);
         Page<Booking> bookings;
@@ -173,7 +174,7 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingDto approveBooking(Long ownerId, Boolean approved, Long bookingId) {
+    public BookingResponseDto approveBooking(Long ownerId, Boolean approved, Long bookingId) {
         log.info("Updating booking id {} as {} by user id {}", bookingId, approved, ownerId);
         getUser(ownerId);
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> {

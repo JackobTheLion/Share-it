@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.exceptions.BookingNotAloudException;
 import ru.practicum.shareit.booking.exceptions.BookingNotFoundException;
 import ru.practicum.shareit.booking.exceptions.ItemNotAvailableException;
@@ -52,10 +52,10 @@ public class BookingServiceTest {
     private UserRequestDto bookerDto;
     private Item item;
     private ItemDto itemDto;
-    private BookingDto bookingDtoToSave;
+    private BookingRequestDto bookingRequestDtoToSave;
     private Booking bookingToSave;
     private Booking savedBooking;
-    private BookingDto savedBookingDto;
+    private BookingRequestDto savedBookingRequestDto;
     private List<Booking> bookings;
     private Timestamp now = Timestamp.valueOf(LocalDateTime.now());
     private LocalDateTime start = LocalDateTime.now().plusHours(1);
@@ -97,15 +97,15 @@ public class BookingServiceTest {
                 .available(item.getIsAvailable())
                 .build();
 
-        bookingDtoToSave = BookingDto.builder()
+        bookingRequestDtoToSave = BookingRequestDto.builder()
                 .itemId(item.getId())
                 .start(start)
                 .end(end)
                 .build();
 
         bookingToSave = Booking.builder()
-                .startDate(Timestamp.valueOf(bookingDtoToSave.getStart()))
-                .endDate(Timestamp.valueOf(bookingDtoToSave.getEnd()))
+                .startDate(Timestamp.valueOf(bookingRequestDtoToSave.getStart()))
+                .endDate(Timestamp.valueOf(bookingRequestDtoToSave.getEnd()))
                 .item(item)
                 .booker(booker)
                 .status(Status.WAITING)
@@ -114,7 +114,7 @@ public class BookingServiceTest {
         savedBooking = bookingToSave;
         savedBooking.setId(bookingId);
 
-        savedBookingDto = BookingDto.builder()
+        savedBookingRequestDto = BookingRequestDto.builder()
                 .id(savedBooking.getId())
                 .start(savedBooking.getStartDate().toLocalDateTime())
                 .end(savedBooking.getEndDate().toLocalDateTime())
@@ -133,20 +133,20 @@ public class BookingServiceTest {
         when(userRepository.findById(bookerId)).thenReturn(Optional.of(booker));
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
 
-        BookingDto result = bookingService.createBooking(bookingDtoToSave, booker.getId());
-        assertEquals(savedBookingDto, result);
+        BookingRequestDto result = bookingService.createBooking(bookingRequestDtoToSave, booker.getId());
+        assertEquals(savedBookingRequestDto, result);
     }
 
     @Test
     public void addBooking_wrongStartDate() {
-        bookingDtoToSave.setStart(end.minusDays(1));
+        bookingRequestDtoToSave.setStart(end.minusDays(1));
 
-        Throwable e1 = assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoToSave, bookerId));
+        Throwable e1 = assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingRequestDtoToSave, bookerId));
         assertEquals("Booking cannot start or end in past", e1.getMessage());
 
-        bookingDtoToSave.setStart(end);
+        bookingRequestDtoToSave.setStart(end);
 
-        Throwable e2 = assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoToSave, bookerId));
+        Throwable e2 = assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingRequestDtoToSave, bookerId));
         assertEquals("Booking start date should be before booking end date", e2.getMessage());
 
         verify(itemRepository, never()).findById(anyLong());
@@ -156,9 +156,9 @@ public class BookingServiceTest {
 
     @Test
     public void addBooking_wrongEndDate() {
-        bookingDtoToSave.setEnd(start.minusDays(1));
+        bookingRequestDtoToSave.setEnd(start.minusDays(1));
 
-        Throwable e = assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoToSave, bookerId));
+        Throwable e = assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingRequestDtoToSave, bookerId));
         assertEquals("Booking start date should be before booking end date", e.getMessage());
 
         verify(itemRepository, never()).findById(anyLong());
@@ -171,7 +171,7 @@ public class BookingServiceTest {
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
         Throwable e = assertThrows(ItemNotFoundException.class, () ->
-                bookingService.createBooking(bookingDtoToSave, bookerId));
+                bookingService.createBooking(bookingRequestDtoToSave, bookerId));
         assertEquals(String.format("Item id %s not found", itemId), e.getMessage());
 
         verify(userRepository, never()).findById(anyLong());
@@ -184,7 +184,7 @@ public class BookingServiceTest {
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
         Throwable e = assertThrows(ItemNotAvailableException.class, () ->
-                bookingService.createBooking(bookingDtoToSave, bookerId));
+                bookingService.createBooking(bookingRequestDtoToSave, bookerId));
         assertEquals(String.format("Item id %s not available", itemId), e.getMessage());
 
         verify(userRepository, never()).findById(anyLong());
@@ -196,7 +196,7 @@ public class BookingServiceTest {
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
         Throwable e = assertThrows(BookingNotAloudException.class, () ->
-                bookingService.createBooking(bookingDtoToSave, item.getOwnerId()));
+                bookingService.createBooking(bookingRequestDtoToSave, item.getOwnerId()));
         assertEquals("Booking own item is not aloud.", e.getMessage());
 
         verify(userRepository, never()).findById(anyLong());
@@ -209,7 +209,7 @@ public class BookingServiceTest {
         when(userRepository.findById(bookerId)).thenReturn(Optional.empty());
 
         Throwable e = assertThrows(UserNotFoundException.class, () ->
-                bookingService.createBooking(bookingDtoToSave, bookerId));
+                bookingService.createBooking(bookingRequestDtoToSave, bookerId));
         assertEquals(String.format("User id %s not found", bookerId), e.getMessage());
 
         verify(bookingRepository, never()).save(any(Booking.class));
@@ -221,7 +221,7 @@ public class BookingServiceTest {
         when(bookingRepository.findByItemId(itemId)).thenReturn(bookings);
         when(userRepository.findById(bookerId)).thenReturn(Optional.of(booker));
 
-        BookingDto otherBooking = BookingDto.builder()
+        BookingRequestDto otherBooking = BookingRequestDto.builder()
                 .itemId(itemId)
                 .start(start.minusMinutes(1))
                 .end(end.minusMinutes(1))
@@ -240,7 +240,7 @@ public class BookingServiceTest {
         when(bookingRepository.findByItemId(itemId)).thenReturn(bookings);
         when(userRepository.findById(bookerId)).thenReturn(Optional.of(booker));
 
-        BookingDto otherBooking = BookingDto.builder()
+        BookingRequestDto otherBooking = BookingRequestDto.builder()
                 .itemId(itemId)
                 .start(start.plusMinutes(1))
                 .end(end.minusMinutes(1))
@@ -259,7 +259,7 @@ public class BookingServiceTest {
         when(bookingRepository.findByItemId(itemId)).thenReturn(bookings);
         when(userRepository.findById(bookerId)).thenReturn(Optional.of(booker));
 
-        BookingDto otherBooking = BookingDto.builder()
+        BookingRequestDto otherBooking = BookingRequestDto.builder()
                 .itemId(itemId)
                 .start(start.plusMinutes(1))
                 .end(end.plusMinutes(1))
@@ -277,9 +277,9 @@ public class BookingServiceTest {
         when(userRepository.findById(bookerId)).thenReturn(Optional.of(booker));
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(savedBooking));
 
-        BookingDto result = bookingService.findBooking(bookingId, bookerId);
+        BookingRequestDto result = bookingService.findBooking(bookingId, bookerId);
 
-        assertEquals(savedBookingDto, result);
+        assertEquals(savedBookingRequestDto, result);
     }
 
     @Test
@@ -310,10 +310,10 @@ public class BookingServiceTest {
         when(bookingRepository.findByBookerIdOrderByStartDateDesc(bookerId, page)).thenReturn(new PageImpl<>(bookings));
         state = "ALL";
 
-        List<BookingDto> result = bookingService.getUserBookings(bookerId, state, from, size);
+        List<BookingRequestDto> result = bookingService.getUserBookings(bookerId, state, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedBookingDto, result.get(0));
+        assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
                 .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(), any(Timestamp.class),
@@ -339,10 +339,10 @@ public class BookingServiceTest {
 
         state = "CURRENT";
 
-        List<BookingDto> result = bookingService.getUserBookings(bookerId, state, from, size);
+        List<BookingRequestDto> result = bookingService.getUserBookings(bookerId, state, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedBookingDto, result.get(0));
+        assertEquals(savedBookingRequestDto, result.get(0));
 
 
         verify(bookingRepository, never())
@@ -368,10 +368,10 @@ public class BookingServiceTest {
 
         state = "PAST";
 
-        List<BookingDto> result = bookingService.getUserBookings(bookerId, state, from, size);
+        List<BookingRequestDto> result = bookingService.getUserBookings(bookerId, state, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedBookingDto, result.get(0));
+        assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
                 .findByBookerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class));
@@ -395,10 +395,10 @@ public class BookingServiceTest {
 
         state = "FUTURE";
 
-        List<BookingDto> result = bookingService.getUserBookings(bookerId, state, from, size);
+        List<BookingRequestDto> result = bookingService.getUserBookings(bookerId, state, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedBookingDto, result.get(0));
+        assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
                 .findByBookerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class));
@@ -421,10 +421,10 @@ public class BookingServiceTest {
 
         state = "WAITING";
 
-        List<BookingDto> result = bookingService.getUserBookings(bookerId, state, from, size);
+        List<BookingRequestDto> result = bookingService.getUserBookings(bookerId, state, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedBookingDto, result.get(0));
+        assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
                 .findByBookerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class));
@@ -448,10 +448,10 @@ public class BookingServiceTest {
 
         state = "REJECTED";
 
-        List<BookingDto> result = bookingService.getUserBookings(bookerId, state, from, size);
+        List<BookingRequestDto> result = bookingService.getUserBookings(bookerId, state, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedBookingDto, result.get(0));
+        assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
                 .findByBookerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class));
@@ -500,10 +500,10 @@ public class BookingServiceTest {
 
         state = "ALL";
 
-        List<BookingDto> result = bookingService.getOwnerBooking(bookerId, state, from, size);
+        List<BookingRequestDto> result = bookingService.getOwnerBooking(bookerId, state, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedBookingDto, result.get(0));
+        assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
                 .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(),
@@ -528,10 +528,10 @@ public class BookingServiceTest {
 
         state = "CURRENT";
 
-        List<BookingDto> result = bookingService.getOwnerBooking(bookerId, state, from, size);
+        List<BookingRequestDto> result = bookingService.getOwnerBooking(bookerId, state, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedBookingDto, result.get(0));
+        assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
                 .findByItemOwnerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class)); //ALL
@@ -555,10 +555,10 @@ public class BookingServiceTest {
 
         state = "PAST";
 
-        List<BookingDto> result = bookingService.getOwnerBooking(bookerId, state, from, size);
+        List<BookingRequestDto> result = bookingService.getOwnerBooking(bookerId, state, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedBookingDto, result.get(0));
+        assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
                 .findByItemOwnerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class)); //ALL
@@ -582,10 +582,10 @@ public class BookingServiceTest {
 
         state = "FUTURE";
 
-        List<BookingDto> result = bookingService.getOwnerBooking(bookerId, state, from, size);
+        List<BookingRequestDto> result = bookingService.getOwnerBooking(bookerId, state, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedBookingDto, result.get(0));
+        assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
                 .findByItemOwnerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class)); //ALL
@@ -609,10 +609,10 @@ public class BookingServiceTest {
 
         state = "WAITING";
 
-        List<BookingDto> result = bookingService.getOwnerBooking(bookerId, state, from, size);
+        List<BookingRequestDto> result = bookingService.getOwnerBooking(bookerId, state, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedBookingDto, result.get(0));
+        assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
                 .findByItemOwnerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class)); //ALL
@@ -636,10 +636,10 @@ public class BookingServiceTest {
 
         state = "REJECTED";
 
-        List<BookingDto> result = bookingService.getOwnerBooking(bookerId, state, from, size);
+        List<BookingRequestDto> result = bookingService.getOwnerBooking(bookerId, state, from, size);
 
         assertEquals(1, result.size());
-        assertEquals(savedBookingDto, result.get(0));
+        assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
                 .findByItemOwnerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class)); //ALL
@@ -684,22 +684,22 @@ public class BookingServiceTest {
     public void approveBooking_AcceptNormal() {
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(savedBooking));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(owner));
-        savedBookingDto.setStatus(Status.APPROVED);
+        savedBookingRequestDto.setStatus(Status.APPROVED);
 
-        BookingDto result = bookingService.approveBooking(ownerId, true, bookingId);
+        BookingRequestDto result = bookingService.approveBooking(ownerId, true, bookingId);
 
-        assertEquals(savedBookingDto, result);
+        assertEquals(savedBookingRequestDto, result);
     }
 
     @Test
     public void approveBooking_RejectedNormal() {
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(savedBooking));
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(owner));
-        savedBookingDto.setStatus(Status.REJECTED);
+        savedBookingRequestDto.setStatus(Status.REJECTED);
 
-        BookingDto result = bookingService.approveBooking(ownerId, false, bookingId);
+        BookingRequestDto result = bookingService.approveBooking(ownerId, false, bookingId);
 
-        assertEquals(savedBookingDto, result);
+        assertEquals(savedBookingRequestDto, result);
     }
 
     @Test
