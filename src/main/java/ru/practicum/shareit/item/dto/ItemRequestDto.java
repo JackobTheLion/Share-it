@@ -12,7 +12,7 @@ import static ru.practicum.shareit.validation.ValidationGroups.Create;
 
 @Data
 @Builder
-public class ItemDto {
+public class ItemRequestDto {
     private Long id;
 
     @NotBlank(groups = Create.class, message = "Name cannot be empty.")

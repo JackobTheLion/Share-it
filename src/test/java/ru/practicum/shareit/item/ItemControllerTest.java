@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exceptions.handler.ErrorHandler;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -43,13 +43,13 @@ public class ItemControllerTest {
     @MockBean
     private ItemService itemService;
 
-    private ItemDto itemToSaveDto;
+    private ItemRequestDto itemToSaveDto;
     private Item savedItem;
-    private ItemDto savedItemDto;
+    private ItemRequestDto savedItemRequestDto;
     private Item updatedItem;
-    private ItemDto updatedItemDto;
+    private ItemRequestDto updatedItemRequestDto;
     private List<Item> savedItems;
-    private List<ItemDto> savedItemsDto;
+    private List<ItemRequestDto> savedItemsDto;
     private CommentDto commentToAdd;
     private User author;
     private LocalDateTime now = LocalDateTime.now();
@@ -66,7 +66,7 @@ public class ItemControllerTest {
 
     @BeforeEach
     public void init() {
-        itemToSaveDto = ItemDto.builder()
+        itemToSaveDto = ItemRequestDto.builder()
                 .name("name")
                 .description("description")
                 .available(true)
@@ -79,7 +79,7 @@ public class ItemControllerTest {
                 .ownerId(userId)
                 .build();
 
-        savedItemDto = ItemDto.builder()
+        savedItemRequestDto = ItemRequestDto.builder()
                 .id(savedItem.getId())
                 .name(savedItem.getName())
                 .description(savedItem.getDescription())
@@ -94,7 +94,7 @@ public class ItemControllerTest {
                 .isAvailable(true)
                 .build();
 
-        updatedItemDto = ItemDto.builder()
+        updatedItemRequestDto = ItemRequestDto.builder()
                 .id(updatedItem.getId())
                 .name(updatedItem.getName())
                 .description(updatedItem.getDescription())
@@ -105,7 +105,7 @@ public class ItemControllerTest {
         savedItems.add(savedItem);
 
         savedItemsDto = new ArrayList<>();
-        savedItemsDto.add(savedItemDto);
+        savedItemsDto.add(savedItemRequestDto);
 
         commentToAdd = CommentDto.builder()
                 .text("text")
@@ -148,7 +148,7 @@ public class ItemControllerTest {
                 .getContentAsString();
 
         verify(itemService, times(1)).addItem(any(Item.class));
-        assertEquals(objectMapper.writeValueAsString(savedItemDto), result);
+        assertEquals(objectMapper.writeValueAsString(savedItemRequestDto), result);
     }
 
     @SneakyThrows
@@ -233,12 +233,12 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void updateItem_UpdateNameNormal() {
-        ItemDto itemToUpdateDto = ItemDto.builder()
+        ItemRequestDto itemToUpdateDto = ItemRequestDto.builder()
                 .name("new name")
                 .build();
 
         updatedItem.setName(itemToUpdateDto.getName());
-        updatedItemDto.setName(itemToUpdateDto.getName());
+        updatedItemRequestDto.setName(itemToUpdateDto.getName());
 
         when(itemService.updateItem(any(Item.class))).thenReturn(updatedItem);
 
@@ -251,19 +251,19 @@ public class ItemControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(updatedItemDto), result);
+        assertEquals(objectMapper.writeValueAsString(updatedItemRequestDto), result);
         verify(itemService, times(1)).updateItem(any(Item.class));
     }
 
     @SneakyThrows
     @Test
     public void updateItem_UpdateDescriptionNormal() {
-        ItemDto itemToUpdateDto = ItemDto.builder()
+        ItemRequestDto itemToUpdateDto = ItemRequestDto.builder()
                 .description("new description")
                 .build();
 
         updatedItem.setDescription(itemToUpdateDto.getDescription());
-        updatedItemDto.setDescription(itemToUpdateDto.getDescription());
+        updatedItemRequestDto.setDescription(itemToUpdateDto.getDescription());
 
         when(itemService.updateItem(any(Item.class))).thenReturn(updatedItem);
 
@@ -276,14 +276,14 @@ public class ItemControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(updatedItemDto), result);
+        assertEquals(objectMapper.writeValueAsString(updatedItemRequestDto), result);
         verify(itemService, times(1)).updateItem(any(Item.class));
     }
 
     @SneakyThrows
     @Test
     public void updateItem_NotAuthorized() {
-        ItemDto itemToUpdateDto = ItemDto.builder()
+        ItemRequestDto itemToUpdateDto = ItemRequestDto.builder()
                 .name("updated name")
                 .build();
 
@@ -298,7 +298,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void updateItem_WrongItemId() {
-        ItemDto itemToUpdateDto = ItemDto.builder()
+        ItemRequestDto itemToUpdateDto = ItemRequestDto.builder()
                 .name("updated name")
                 .build();
 
@@ -313,7 +313,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void updateItem_WrongUserId() {
-        ItemDto itemToUpdateDto = ItemDto.builder()
+        ItemRequestDto itemToUpdateDto = ItemRequestDto.builder()
                 .name("updated name")
                 .build();
 
@@ -367,7 +367,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void getAllItems_Empty() {
-        List<ItemDto> savedItemsDto = new ArrayList<>();
+        List<ItemRequestDto> savedItemsDto = new ArrayList<>();
 
         when(itemService.getAllItems(userId, from, size)).thenReturn(new ArrayList<>());
 
@@ -388,7 +388,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void getItem_Normal() {
-        ItemDto expectedSavedItem = ItemDto.builder()
+        ItemRequestDto expectedSavedItem = ItemRequestDto.builder()
                 .id(savedItem.getId())
                 .name(savedItem.getName())
                 .description(savedItem.getDescription())
@@ -451,7 +451,7 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void searchItem_Empty() {
-        List<ItemDto> savedItemsDto = new ArrayList<>();
+        List<ItemRequestDto> savedItemsDto = new ArrayList<>();
 
         String result = mockMvc.perform(get("/items/search")
                         .contentType(MediaType.APPLICATION_JSON)

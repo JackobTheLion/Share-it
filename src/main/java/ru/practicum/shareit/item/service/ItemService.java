@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
@@ -22,6 +23,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Component
 @Slf4j
@@ -77,7 +80,7 @@ public class ItemService {
 
     public List<Item> getAllItems(Long userId, int from, int size) {
         Page<Item> items;
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        final PageRequest page = PageRequest.of(from, size, Sort.by(DESC, "created"));
         if (userId == null) {
             log.info("userId is null. Getting all items");
             items = itemRepository.findAll(page);
@@ -111,7 +114,7 @@ public class ItemService {
             return new ArrayList<>();
         }
         log.info("Looking for item by key word: \"{}\". User id: {}", text, userId);
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        final PageRequest page = PageRequest.of(from, size, Sort.by(DESC, "created"));
         Page<Item> items = itemRepository
                 .findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsAvailableIsTrue(text, text, page);
 

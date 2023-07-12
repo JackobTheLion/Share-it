@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exceptions.handler.ErrorHandler;
 import ru.practicum.shareit.request.controller.RequestController;
 import ru.practicum.shareit.request.dto.ItemRequestRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.service.RequestService;
 import ru.practicum.shareit.user.model.User;
 
@@ -39,7 +40,7 @@ public class RequestControllerTest {
     @MockBean
     private RequestService requestService;
     private ItemRequestRequestDto requestToSaveDto;
-    private ItemRequestRequestDto savedItemRequestRequestDto;
+    private ItemRequestResponseDto savedItemRequestRequestDto;
 
     private User requester;
     private LocalDateTime now = LocalDateTime.now();
@@ -47,7 +48,7 @@ public class RequestControllerTest {
     private Long wrongUserId = -9999L;
     private int from = 0;
     private int size = 10;
-    private List<ItemRequestRequestDto> requests;
+    private List<ItemRequestResponseDto> requests;
 
     @BeforeEach
     public void beforeEach() {
@@ -60,10 +61,9 @@ public class RequestControllerTest {
                 .name("author name")
                 .build();
 
-        savedItemRequestRequestDto = ItemRequestRequestDto.builder()
+        savedItemRequestRequestDto = ItemRequestResponseDto.builder()
                 .id(1L)
                 .description(requestToSaveDto.getDescription())
-                .requesterId(requester.getId())
                 .created(now)
                 .build();
 
@@ -145,7 +145,7 @@ public class RequestControllerTest {
     @SneakyThrows
     @Test
     public void getOwnRequests_Normal() {
-        List<ItemRequestRequestDto> requests = new ArrayList<>();
+        List<ItemRequestResponseDto> requests = new ArrayList<>();
         requests.add(savedItemRequestRequestDto);
 
         when(requestService.findUserRequest(userId, from, size)).thenReturn(requests);

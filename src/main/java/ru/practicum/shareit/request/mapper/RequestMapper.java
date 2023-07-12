@@ -6,6 +6,7 @@ import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.model.User;
 
+import java.sql.Timestamp;
 import java.util.stream.Collectors;
 
 public class RequestMapper {
@@ -14,6 +15,7 @@ public class RequestMapper {
         User requester = new User();
         requester.setId(itemRequestRequestDto.getRequesterId());
         return Request.builder()
+                .created(Timestamp.valueOf(itemRequestRequestDto.getCreated()))
                 .description(itemRequestRequestDto.getDescription())
                 .requester(requester)
                 .build();

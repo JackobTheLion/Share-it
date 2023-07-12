@@ -25,8 +25,8 @@ public class RequestController {
 
     @PostMapping
     public ItemRequestResponseDto addRequest(@RequestBody @Validated ItemRequestRequestDto itemRequestRequestDto,
-                                            @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
-                                         message = "User id should be more than 0") Long requesterId) {
+                                             @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
+                                                     message = "User id should be more than 0") Long requesterId) {
 
         log.info("Request {} received from user id {}", itemRequestRequestDto, requesterId);
         itemRequestRequestDto.setRequesterId(requesterId);
@@ -37,8 +37,8 @@ public class RequestController {
 
     @GetMapping("/{requestId}")
     public ItemRequestResponseDto findRequest(@PathVariable Long requestId,
-                                             @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
-                                          message = "User id should be more than 0") Long userId) {
+                                              @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
+                                                      message = "User id should be more than 0") Long userId) {
         log.info("Looking for request id {} by user {}", requestId, userId);
         ItemRequestResponseDto itemRequestRequestDto = requestService.findRequest(requestId, userId);
         log.info("Request found: {}", itemRequestRequestDto);
@@ -49,9 +49,9 @@ public class RequestController {
     public List<ItemRequestResponseDto> getOwnRequests(@RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
             message = "User id should be more than 0") Long userId,
                                                        @RequestParam(defaultValue = "0") @Min(value = 0,
-                                                   message = "Parameter 'from' must be more than 0") int from,
+                                                               message = "Parameter 'from' must be more than 0") int from,
                                                        @RequestParam(defaultValue = "10") @Min(value = 0,
-                                                   message = "Parameter 'size' must be more than 0") int size) {
+                                                               message = "Parameter 'size' must be more than 0") int size) {
 
         log.info("Looking for requests from user id {}. Paging from {}, size {}.", userId, from, size);
         List<ItemRequestResponseDto> requests = requestService.findUserRequest(userId, from, size);

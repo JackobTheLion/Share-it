@@ -12,11 +12,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exceptions.handler.ErrorHandler;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.user.dto.UserRequestDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.user.dto.UserResponseDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -40,11 +41,11 @@ public class BookingControllerTest {
     @MockBean
     private BookingService bookingService;
     private BookingRequestDto bookingToSave;
-    private BookingRequestDto savedBookingRequestDto;
-    private List<BookingRequestDto> bookings;
-    private ItemDto itemDto;
+    private BookingResponseDto savedBookingRequestDto;
+    private List<BookingResponseDto> bookings;
+    private ItemResponseDto itemDto;
     private Long itemId = 1L;
-    private UserRequestDto userRequestDto;
+    private UserResponseDto userResponseDto;
     private Long userId = 1L;
     private Integer from = 0;
     private Integer size = 10;
@@ -53,11 +54,11 @@ public class BookingControllerTest {
 
     @BeforeEach
     public void beforeEach() {
-        userRequestDto = UserRequestDto.builder()
+        userResponseDto = UserResponseDto.builder()
                 .id(userId)
                 .build();
 
-        itemDto = ItemDto.builder()
+        itemDto = ItemResponseDto.builder()
                 .id(itemId)
                 .build();
 
@@ -67,12 +68,12 @@ public class BookingControllerTest {
                 .end(end)
                 .build();
 
-        savedBookingRequestDto = BookingRequestDto.builder()
+        savedBookingRequestDto = BookingResponseDto.builder()
                 .id(1L)
                 .start(start)
                 .end(end)
                 .item(itemDto)
-                .booker(userRequestDto)
+                .booker(userResponseDto)
                 .status(Status.WAITING)
                 .build();
 
@@ -154,7 +155,7 @@ public class BookingControllerTest {
     @SneakyThrows
     @Test
     public void updateBooking_Normal() {
-        BookingRequestDto updatedBooking = savedBookingRequestDto;
+        BookingResponseDto updatedBooking = savedBookingRequestDto;
         updatedBooking.setStatus(Status.APPROVED);
         when(bookingService.approveBooking(userId, true, savedBookingRequestDto.getId())).thenReturn(updatedBooking);
 

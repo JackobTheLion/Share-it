@@ -41,7 +41,7 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public UserResponseDto updateUser(@NotNull @Validated(ValidationGroups.Update.class) @RequestBody UserRequestDto userRequestDto,
-                                     @PathVariable Long userId) {
+                                      @PathVariable Long userId) {
 
         log.info("Updating user id {} with {}", userId, userRequestDto);
         User user = mapFromDto(userRequestDto, userId);

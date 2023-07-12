@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.mapper;
 
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemInRequestDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.Request;
@@ -12,32 +12,32 @@ import static ru.practicum.shareit.booking.mapper.BookingMapper.mapToDtoItem;
 
 public class ItemMapper {
 
-    public static Item mapFromDto(ItemDto itemDto, Long itemId, Long userId) {
+    public static Item mapFromDto(ItemRequestDto itemRequestDto, Long itemId, Long userId) {
         Item item = Item.builder()
-                .name(itemDto.getName())
+                .name(itemRequestDto.getName())
                 .id(itemId)
-                .description(itemDto.getDescription())
-                .isAvailable(itemDto.getAvailable())
+                .description(itemRequestDto.getDescription())
+                .isAvailable(itemRequestDto.getAvailable())
                 .ownerId(userId)
                 .build();
-        if (itemDto.getRequestId() != null) {
+        if (itemRequestDto.getRequestId() != null) {
             Request request = new Request();
-            request.setId(itemDto.getRequestId());
+            request.setId(itemRequestDto.getRequestId());
             item.setRequest(request);
         }
         return item;
     }
 
-    public static Item mapFromDto(ItemDto itemDto, Long userId) {
+    public static Item mapFromDto(ItemRequestDto itemRequestDto, Long userId) {
         Item item = Item.builder()
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .isAvailable(itemDto.getAvailable())
+                .name(itemRequestDto.getName())
+                .description(itemRequestDto.getDescription())
+                .isAvailable(itemRequestDto.getAvailable())
                 .ownerId(userId)
                 .build();
-        if (itemDto.getRequestId() != null) {
+        if (itemRequestDto.getRequestId() != null) {
             Request request = new Request();
-            request.setId(itemDto.getRequestId());
+            request.setId(itemRequestDto.getRequestId());
             item.setRequest(request);
         }
         return item;
