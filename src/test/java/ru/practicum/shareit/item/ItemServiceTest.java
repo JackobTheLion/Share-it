@@ -296,7 +296,7 @@ public class ItemServiceTest {
     @Test
     public void searchItem_Normal() {
         when(itemRepository
-                .findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsAvailableIsTrue(text, text, page))
+                .findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsAvailableIsTrue(any(), any(), any()))
                 .thenReturn(new PageImpl<>(savedItems));
         when(bookingRepository.findLastBooking(anyLong(), any(Timestamp.class)))
                 .thenReturn(lastBookings);

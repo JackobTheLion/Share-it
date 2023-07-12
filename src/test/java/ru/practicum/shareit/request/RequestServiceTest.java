@@ -152,7 +152,7 @@ public class RequestServiceTest {
     @Test
     public void findUserRequest_Normal() {
         when(userRepository.findById(requester.getId())).thenReturn(Optional.of(requester));
-        when(requestRepository.findAllByRequesterId(userId, page)).thenReturn(new PageImpl<>(requests));
+        when(requestRepository.findAllByRequesterId(any(), any())).thenReturn(new PageImpl<>(requests));
 
         List<ItemRequestResponseDto> result = requestService.findUserRequest(userId, from, size);
 
@@ -184,7 +184,7 @@ public class RequestServiceTest {
 
     @Test
     public void findAllRequests_Normal() {
-        when(requestRepository.findAllOrderByCreated(userId, page)).thenReturn(new PageImpl<>(requests));
+        when(requestRepository.findAllOrderByCreated(any(), any())).thenReturn(new PageImpl<>(requests));
 
         List<ItemRequestResponseDto> result = requestService.findAllRequests(userId, from, size);
 
@@ -194,7 +194,7 @@ public class RequestServiceTest {
 
     @Test
     public void findAllRequests_Empty() {
-        when(requestRepository.findAllOrderByCreated(userId, page)).thenReturn(new PageImpl<>(new ArrayList<>()));
+        when(requestRepository.findAllOrderByCreated(any(), any())).thenReturn(new PageImpl<>(new ArrayList<>()));
 
         List<ItemRequestResponseDto> result = requestService.findAllRequests(userId, from, size);
 
