@@ -3,6 +3,8 @@ package ru.practicum.shareit.booking;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.model.Booking;
@@ -33,7 +35,12 @@ class BookingServiceImplTest {
     @BeforeEach
     void setUp() {
         bookingRepository = mock(BookingRepository.class);
-        when(bookingRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(bookingRepository.save(any())).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return invocation.getArgument(0);
+            }
+        });
         userRepository = mock(UserRepository.class);
         itemRepository = mock(ItemRepository.class);
         bookingService = new BookingService(bookingRepository, userRepository, itemRepository);
