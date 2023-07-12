@@ -21,7 +21,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -49,7 +49,7 @@ public class BookingServiceTest {
     private BookingService bookingService;
     private User owner;
     private User booker;
-    private UserDto bookerDto;
+    private UserRequestDto bookerDto;
     private Item item;
     private ItemDto itemDto;
     private BookingDto bookingDtoToSave;
@@ -78,7 +78,7 @@ public class BookingServiceTest {
         booker = User.builder()
                 .id(bookerId)
                 .build();
-        bookerDto = UserDto.builder()
+        bookerDto = UserRequestDto.builder()
                 .id(booker.getId())
                 .build();
 

@@ -16,7 +16,7 @@ import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exceptions.handler.ErrorHandler;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class BookingControllerTest {
     private List<BookingDto> bookings;
     private ItemDto itemDto;
     private Long itemId = 1L;
-    private UserDto userDto;
+    private UserRequestDto userRequestDto;
     private Long userId = 1L;
     private Integer from = 0;
     private Integer size = 10;
@@ -53,7 +53,7 @@ public class BookingControllerTest {
 
     @BeforeEach
     public void beforeEach() {
-        userDto = UserDto.builder()
+        userRequestDto = UserRequestDto.builder()
                 .id(userId)
                 .build();
 
@@ -72,7 +72,7 @@ public class BookingControllerTest {
                 .start(start)
                 .end(end)
                 .item(itemDto)
-                .booker(userDto)
+                .booker(userRequestDto)
                 .status(Status.WAITING)
                 .build();
 

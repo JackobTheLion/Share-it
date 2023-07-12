@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.controller.UserController;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -124,7 +124,7 @@ public class UserControllerTest {
     @SneakyThrows
     @Test
     public void updateUser_emailUpdate_Normal() {
-        UserDto updatedUserDto = UserDto.builder()
+        UserRequestDto updatedUserRequestDto = UserRequestDto.builder()
                 .email("newemail@email.com")
                 .build();
         Long userId = 1L;
@@ -132,14 +132,14 @@ public class UserControllerTest {
         User userToReturn = User.builder()
                 .id(userId)
                 .name("name")
-                .email(updatedUserDto.getEmail())
+                .email(updatedUserRequestDto.getEmail())
                 .build();
 
         when(userService.update(any(User.class))).thenReturn(userToReturn);
 
         String result = mockMvc.perform(patch("/users/{userId}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedUserDto)))
+                        .content(objectMapper.writeValueAsString(updatedUserRequestDto)))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -152,14 +152,14 @@ public class UserControllerTest {
     @SneakyThrows
     @Test
     public void updateUser_nameUpdate_Normal() {
-        UserDto updatedUserDto = UserDto.builder()
+        UserRequestDto updatedUserRequestDto = UserRequestDto.builder()
                 .name("new name")
                 .build();
         Long userId = 1L;
 
         User userToReturn = User.builder()
                 .id(userId)
-                .name(updatedUserDto.getName())
+                .name(updatedUserRequestDto.getName())
                 .email("newemail@email.com")
                 .build();
 
@@ -167,7 +167,7 @@ public class UserControllerTest {
 
         String result = mockMvc.perform(patch("/users/{userId}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedUserDto)))
+                        .content(objectMapper.writeValueAsString(updatedUserRequestDto)))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()

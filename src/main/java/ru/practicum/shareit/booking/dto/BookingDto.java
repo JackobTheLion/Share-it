@@ -6,7 +6,8 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
+import ru.practicum.shareit.user.dto.UserResponseDto;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ public class BookingDto {
 
     private ItemDto item;
 
-    private UserDto booker;
+    private UserResponseDto booker;
 
     private Status status;
 }
