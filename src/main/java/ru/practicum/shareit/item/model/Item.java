@@ -46,4 +46,24 @@ public class Item {
     private transient Booking lastBooking;
 
     private transient Booking nextBooking;
+
+    @Override
+    public String toString() {
+        Long requestId = null;
+        if (request != null) {
+            requestId = request.getId();
+        }
+
+        return "Item{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", isAvailable=" + isAvailable +
+                ", ownerId=" + ownerId +
+                ", comments=" + comments +
+                ", request=" + requestId +
+                ", lastBooking=" + lastBooking +
+                ", nextBooking=" + nextBooking +
+                '}';
+    }
 }

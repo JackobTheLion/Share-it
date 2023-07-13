@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -27,7 +26,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.springframework.data.domain.Sort.Direction.DESC;
 import static ru.practicum.shareit.booking.model.Status.*;
 
 @Service
@@ -111,7 +109,7 @@ public class BookingService {
         log.info("Looking for bookings of user {} with status {}", bookerId, state);
         getUser(bookerId);
         Page<Booking> bookings;
-        final PageRequest page = PageRequest.of(from, size, Sort.by(DESC, "created"));
+        final PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         Timestamp now = Timestamp.valueOf(LocalDateTime.now());
         log.info("Now is: {}.", now);
         switch (state) {
@@ -145,7 +143,7 @@ public class BookingService {
         log.info("Looking for bookings of owner {} with status {}", userId, state);
         getUser(userId);
         Page<Booking> bookings;
-        final PageRequest page = PageRequest.of(from, size, Sort.by(DESC, "created"));
+        final PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         Timestamp now = Timestamp.valueOf(LocalDateTime.now());
         log.info("Now is: {}.", now);
         switch (state) {

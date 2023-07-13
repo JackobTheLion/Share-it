@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.request.dto.ItemRequestRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
@@ -18,7 +17,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
-import static org.springframework.data.domain.Sort.Direction.DESC;
 import static ru.practicum.shareit.request.mapper.RequestMapper.mapFromDto;
 import static ru.practicum.shareit.request.mapper.RequestMapper.mapToDto;
 
@@ -58,14 +56,14 @@ public class RequestService {
     public List<ItemRequestResponseDto> findUserRequest(Long userId, int from, int size) {
         log.info("Looking for requests from user id {}. Paging from {}, size {}.", userId, from, size);
         doesUserExist(userId);
-        final PageRequest page = PageRequest.of(from, size, Sort.by(DESC, "created"));
+        final PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         Page<Request> requests = requestRepository.findAllByRequesterId(userId, page);
         return requests.map(RequestMapper::mapToDto).getContent();
     }
 
     public List<ItemRequestResponseDto> findAllRequests(Long userId, int from, int size) {
         log.info("Looking for requests/ Paging from {}, size {}.", from, size);
-        final PageRequest page = PageRequest.of(from, size, Sort.by(DESC, "created"));
+        final PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         Page<Request> requests = requestRepository.findAllOrderByCreated(userId, page);
         return requests.map(RequestMapper::mapToDto).getContent();
     }

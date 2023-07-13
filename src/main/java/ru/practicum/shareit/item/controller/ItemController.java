@@ -69,11 +69,7 @@ public class ItemController {
                                                      message = "Parameter 'from' must be more than 0") int from,
                                              @RequestParam(defaultValue = "10") @Min(value = 0,
                                                      message = "Parameter 'size' must be more than 0") int size) {
-        if (userId == null) {
-            log.info("Getting all items");
-        } else {
-            log.info("Getting all items of user {}", userId);
-        }
+        log.info("Getting all items. User id: {}.", userId);
         List<Item> items = itemService.getAllItems(userId, from, size);
         log.info("Number of items found: {}", items.size());
         return items.stream().map(ItemMapper::mapToDto).collect(Collectors.toList());
