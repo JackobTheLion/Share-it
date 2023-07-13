@@ -1,35 +1,50 @@
 package ru.practicum.shareit.item.mapper;
 
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemInRequestDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.Request;
 
 import java.util.stream.Collectors;
 
-import static ru.practicum.shareit.booking.BookingMapper.mapToDtoItem;
+import static ru.practicum.shareit.booking.mapper.BookingMapper.mapToDtoItem;
 
 public class ItemMapper {
 
-    public static Item mapFromDto(ItemDto itemDto, Long itemId, Long userId) {
-        return Item.builder()
-                .name(itemDto.getName())
+    public static Item mapFromDto(ItemRequestDto itemRequestDto, Long itemId, Long userId) {
+        Item item = Item.builder()
+                .name(itemRequestDto.getName())
                 .id(itemId)
-                .description(itemDto.getDescription())
-                .isAvailable(itemDto.getAvailable())
+                .description(itemRequestDto.getDescription())
+                .isAvailable(itemRequestDto.getAvailable())
                 .ownerId(userId)
                 .build();
+        if (itemRequestDto.getRequestId() != null) {
+            Request request = new Request();
+            request.setId(itemRequestDto.getRequestId());
+            item.setRequest(request);
+        }
+        return item;
     }
 
-    public static Item mapFromDto(ItemDto itemDto, Long userId) {
-        return Item.builder()
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .isAvailable(itemDto.getAvailable())
+    public static Item mapFromDto(ItemRequestDto itemRequestDto, Long userId) {
+        Item item = Item.builder()
+                .name(itemRequestDto.getName())
+                .description(itemRequestDto.getDescription())
+                .isAvailable(itemRequestDto.getAvailable())
                 .ownerId(userId)
                 .build();
+        if (itemRequestDto.getRequestId() != null) {
+            Request request = new Request();
+            request.setId(itemRequestDto.getRequestId());
+            item.setRequest(request);
+        }
+        return item;
     }
 
-    public static ItemDto mapToDto(Item item) {
-        ItemDto itemDto = ItemDto.builder()
+    public static ItemResponseDto mapToDto(Item item) {
+        ItemResponseDto itemDto = ItemResponseDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
@@ -37,7 +52,13 @@ public class ItemMapper {
                 .build();
 
         if (item.getComments() != null) {
-            itemDto.setComments(item.getComments().stream().map(CommentMapper::mapToDto).collect(Collectors.toList()));
+            itemDto.setComments(item.getComments().stream()
+                    .map(CommentMapper::mapToDto)
+                    .collect(Collectors.toList()));
+        }
+
+        if (item.getRequest() != null) {
+            itemDto.setRequestId(item.getRequest().getId());
         }
 
         if (item.getLastBooking() != null) {
@@ -47,5 +68,16 @@ public class ItemMapper {
             itemDto.setNextBooking(mapToDtoItem(item.getNextBooking()));
         }
         return itemDto;
+    }
+
+    public static ItemInRequestDto mapToItemRequestDto(Item item) {
+        return ItemInRequestDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .ownerId(item.getOwnerId())
+                .description(item.getDescription())
+                .available(item.getIsAvailable())
+                .requestId(item.getRequest().getId())
+                .build();
     }
 }

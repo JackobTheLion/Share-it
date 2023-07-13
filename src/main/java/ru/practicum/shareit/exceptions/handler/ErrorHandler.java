@@ -11,7 +11,6 @@ import ru.practicum.shareit.exceptions.ErrorResponse;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.exceptions.CommentNotAllowedException;
-import ru.practicum.shareit.item.exceptions.NoRightsException;
 import ru.practicum.shareit.user.exceptions.EmailRegisteredException;
 
 import javax.validation.ConstraintViolationException;
@@ -28,12 +27,6 @@ public class ErrorHandler {
     @ExceptionHandler(EmailRegisteredException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleEmailRegisteredException(final EmailRegisteredException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler(NoRightsException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleNoRightsException(final NoRightsException e) {
         return new ErrorResponse(e.getMessage());
     }
 

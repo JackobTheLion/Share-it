@@ -2,17 +2,19 @@ package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.exceptions.CommentNotAllowedException;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -40,17 +42,13 @@ public class ItemService {
 
     public Item addItem(Item item) {
         log.info("Adding item {}", item);
-        if (item.getName() == null || item.getName().isEmpty()) {
-            log.info("Item name cannot be empty");
-            throw new ValidationException("Item name cannot be empty");
-        }
         User user = userRepository.findById(item.getOwnerId()).orElseThrow(() -> {
             log.info("Item id {} not found ", item.getId());
             return new ItemNotFoundException(String.format("User id %s not found", item.getOwnerId()));
         });
-        itemRepository.save(item);
+        Item savedItem = itemRepository.save(item);
         log.info("Item added {}.", item);
-        return item;
+        return savedItem;
     }
 
     public Item updateItem(Item item) {
@@ -77,19 +75,20 @@ public class ItemService {
         return itemRepository.save(savedItem);
     }
 
-    public List<Item> getAllItems(Long userId) {
-        List<Item> items;
+    public List<Item> getAllItems(Long userId, int from, int size) {
+        Page<Item> items;
+        final PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         if (userId == null) {
             log.info("userId is null. Getting all items");
-            items = itemRepository.findAll();
+            items = itemRepository.findAll(page);
         } else {
             log.info("Getting all items of user id: {}", userId);
-            items = itemRepository.findAllByOwnerId(userId);
-            setBookingsToItems(items);
+            items = itemRepository.findAllByOwnerId(userId, page);
+            setBookingsToItems(items.getContent());
         }
 
-        log.info("Number of items found: {}", items.size());
-        return items;
+        log.info("Number of items found: {}", items);
+        return items.getContent();
     }
 
     public Item getItem(Long itemId, Long userId) {
@@ -107,18 +106,19 @@ public class ItemService {
         return item;
     }
 
-    public List<Item> searchItem(String text, Long userId) {
+    public List<Item> searchItem(String text, Long userId, int from, int size) {
         if (text == null || text.isBlank()) {
             return new ArrayList<>();
         }
         log.info("Looking for item by key word: \"{}\". User id: {}", text, userId);
-        List<Item> items = itemRepository
-                .findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsAvailableIsTrue(text, text);
+        final PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        Page<Item> items = itemRepository
+                .findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsAvailableIsTrue(text, text, page);
 
-        setBookingsToItems(items);
+        setBookingsToItems(items.getContent());
 
-        log.info("Number of items found: {}", items.size());
-        return items;
+        log.info("Number of items found: {}", items);
+        return items.getContent();
     }
 
     public void deleteItem(Long itemId, Long userId) {
@@ -128,7 +128,7 @@ public class ItemService {
             return new ItemNotFoundException(String.format("Item id %s not found", itemId));
         });
 
-        if (!savedItem.getOwnerId().equals(itemId)) {
+        if (!savedItem.getOwnerId().equals(userId)) {
             log.info("Item {} does not belong to user {}.", itemId, userId);
             throw new ItemNotFoundException(String.format("Item id %s not found", itemId));
         }
@@ -145,7 +145,7 @@ public class ItemService {
 
         User user = userRepository.findById(comment.getAuthor().getId()).orElseThrow(() -> {
             log.info("Item id {} not found ", comment.getAuthor().getId());
-            return new ItemNotFoundException(String.format("User id %s not found", comment.getAuthor().getId()));
+            return new UserNotFoundException(String.format("User id %s not found", comment.getAuthor().getId()));
         });
         comment.setAuthor(user);
 
@@ -178,7 +178,8 @@ public class ItemService {
         log.info("Bookings found: {}", b);
         if (!b.isEmpty()) {
             return b.get(0);
-        } else return null;
+        }
+        return null;
     }
 
     private Booking getNextBooking(Long itemId, Timestamp now) {
@@ -186,6 +187,7 @@ public class ItemService {
         log.info("Bookings found: {}", b);
         if (!b.isEmpty()) {
             return b.get(0);
-        } else return null;
+        }
+        return null;
     }
 }

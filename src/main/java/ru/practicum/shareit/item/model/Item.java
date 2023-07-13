@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.request.model.Request;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -38,7 +39,31 @@ public class Item {
     @JoinColumn(name = "item_id")
     private List<Comment> comments = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "request_id")
+    private Request request;
+
     private transient Booking lastBooking;
 
     private transient Booking nextBooking;
+
+    @Override
+    public String toString() {
+        Long requestId = null;
+        if (request != null) {
+            requestId = request.getId();
+        }
+
+        return "Item{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", isAvailable=" + isAvailable +
+                ", ownerId=" + ownerId +
+                ", comments=" + comments +
+                ", request=" + requestId +
+                ", lastBooking=" + lastBooking +
+                ", nextBooking=" + nextBooking +
+                '}';
+    }
 }

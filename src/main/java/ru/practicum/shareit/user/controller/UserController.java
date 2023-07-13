@@ -1,19 +1,22 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
+import ru.practicum.shareit.user.dto.UserResponseDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.shareit.user.UserMapper.mapFromDto;
-import static ru.practicum.shareit.user.UserMapper.mapToDto;
+import static ru.practicum.shareit.user.mapper.UserMapper.mapFromDto;
+import static ru.practicum.shareit.user.mapper.UserMapper.mapToDto;
 
 @RestController
 @Slf4j
@@ -27,9 +30,9 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto addUser(@NotNull @Validated(ValidationGroups.Create.class) @RequestBody UserDto userDto) {
-        log.info("Adding user {}", userDto);
-        User user = mapFromDto(userDto);
+    public UserResponseDto addUser(@NotNull @Validated(ValidationGroups.Create.class) @RequestBody UserRequestDto userRequestDto) {
+        log.info("Adding user {}", userRequestDto);
+        User user = mapFromDto(userRequestDto);
         log.info("User mapped from DTO: {}", user);
         User addedUser = userService.add(user);
         log.info("User added: {}", addedUser);
@@ -37,12 +40,11 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@NotNull @Validated(ValidationGroups.Update.class) @RequestBody UserDto userDto,
-                              @PathVariable Long userId) {
+    public UserResponseDto updateUser(@NotNull @Validated(ValidationGroups.Update.class) @RequestBody UserRequestDto userRequestDto,
+                                      @PathVariable Long userId) {
 
-        log.info("Updating user id {} with {}", userId, userDto);
-        User user = mapFromDto(userDto);
-        user.setId(userId);
+        log.info("Updating user id {} with {}", userId, userRequestDto);
+        User user = mapFromDto(userRequestDto, userId);
         log.info("User mapped from DTO: {}", user);
         User updatedUser = userService.update(user);
         log.info("User updated: {}", updatedUser);
@@ -50,7 +52,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUser(@PathVariable Long userId) {
+    public UserResponseDto getUser(@PathVariable Long userId) {
         log.info("Looking for user id {}", userId);
         User user = userService.get(userId);
         log.info("User found: {}", user);
@@ -58,9 +60,9 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDto> getAllUsers() {
+    public List<UserResponseDto> getAllUsers() {
         log.info("Getting all users");
-        List<UserDto> users = userService.findAll().stream().map(UserMapper::mapToDto).collect(Collectors.toList());
+        List<UserResponseDto> users = userService.findAll().stream().map(UserMapper::mapToDto).collect(Collectors.toList());
         log.info("Number of users found {}", users.size());
         return users;
     }
