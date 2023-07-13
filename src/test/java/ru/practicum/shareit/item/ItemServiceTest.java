@@ -53,16 +53,10 @@ public class ItemServiceTest {
     private Comment savedComment;
     private User user;
     private List<Item> savedItems;
-    private Long wrongUserId = 999999L;
-    private Timestamp now = Timestamp.valueOf(LocalDateTime.now());
-    private int from = 0;
-    private int size = 10;
-    private PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
     private Booking lastBooking;
     private Booking nextBooking;
     private List<Booking> lastBookings;
     private List<Booking> nextBookings;
-    private String text = "text";
 
     @BeforeEach
     public void init() {
@@ -126,7 +120,7 @@ public class ItemServiceTest {
                 .text(commentToSave.getText())
                 .item(commentToSave.getItem())
                 .author(commentToSave.getAuthor())
-                .created(now)
+                .created(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
     }
 
@@ -144,6 +138,7 @@ public class ItemServiceTest {
 
     @Test
     public void addItem_WrongUserId() {
+        Long wrongUserId = 999999L;
         itemToSave.setOwnerId(wrongUserId);
         when(userRepository.findById(itemToSave.getOwnerId())).thenReturn(Optional.empty());
 
@@ -229,6 +224,8 @@ public class ItemServiceTest {
                 .thenReturn(lastBookings);
         when(bookingRepository.findNextBooking(anyLong(), any(Timestamp.class)))
                 .thenReturn(nextBookings);
+        int from = 0;
+        int size = 10;
 
         List<Item> result = itemService.getAllItems(user.getId(), from, size);
         assertEquals(savedItems, result);
@@ -239,6 +236,8 @@ public class ItemServiceTest {
         Long userIdNull = null;
         when(itemRepository.findAll(any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(savedItems));
+        int from = 0;
+        int size = 10;
 
         List<Item> result = itemService.getAllItems(userIdNull, from, size);
         assertEquals(savedItems, result);
@@ -252,6 +251,8 @@ public class ItemServiceTest {
     public void getAllItems_OwnerNoBookingsNormal() {
         when(itemRepository.findAllByOwnerId(anyLong(), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(savedItems));
+        int from = 0;
+        int size = 10;
 
         List<Item> result = itemService.getAllItems(user.getId(), from, size);
         assertEquals(savedItems, result);
@@ -302,6 +303,9 @@ public class ItemServiceTest {
                 .thenReturn(lastBookings);
         when(bookingRepository.findNextBooking(anyLong(), any(Timestamp.class)))
                 .thenReturn(nextBookings);
+        int from = 0;
+        int size = 10;
+        String text = "text";
 
         List<Item> result = itemService.searchItem(text, user.getId(), from, size);
         assertEquals(savedItems, result);
@@ -309,7 +313,9 @@ public class ItemServiceTest {
 
     @Test
     public void searchItem_EmptyTextNormal() {
-        text = "";
+        String text = "";
+        int from = 0;
+        int size = 10;
 
         List<Item> result = itemService.searchItem(text, user.getId(), from, size);
         assertTrue(result.isEmpty());
@@ -351,6 +357,7 @@ public class ItemServiceTest {
 
     @Test
     public void deleteItem_NotAuthorized() {
+        Long wrongUserId = 999999L;
         when(itemRepository.findById(1L)).thenReturn(Optional.of(savedItem));
 
         Throwable e = assertThrows(ItemNotFoundException.class, () ->
