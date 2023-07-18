@@ -75,7 +75,7 @@ public class ItemRepositoryTest {
                 .ownerId(item1.getOwnerId())
                 .build();
 
-        List<Item> savedItems = itemRepository.findAllByOwnerId(savedUser1.getId(), page).getContent();
+        List<Item> savedItems = itemRepository.findAllByOwnerIdOrderById(savedUser1.getId(), page).getContent();
 
         assertEquals(1, savedItems.size());
         assertEquals(expectedItem.getName(), savedItems.get(0).getName());
@@ -87,7 +87,7 @@ public class ItemRepositoryTest {
 
     @Test
     public void findAllByOwnerId_Empty() {
-        List<Item> savedItems = itemRepository.findAllByOwnerId(999L, page).getContent();
+        List<Item> savedItems = itemRepository.findAllByOwnerIdOrderById(999L, page).getContent();
 
         assertTrue(savedItems.isEmpty());
     }

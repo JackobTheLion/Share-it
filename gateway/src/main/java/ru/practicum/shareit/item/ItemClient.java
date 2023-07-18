@@ -63,6 +63,6 @@ public class ItemClient extends BaseClient {
 
     public ResponseEntity<Object> addComment(Long userId, Long itemId, CommentDto commentDto) {
         String path = String.format("/%s/comment", itemId);
-        return put(path, userId, commentDto);
+        return post(path, userId, commentDto);
     }
 }

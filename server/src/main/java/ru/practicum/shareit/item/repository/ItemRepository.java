@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.item.model.Item;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    Page<Item> findAllByOwnerId(Long ownerId, Pageable page);
+    Page<Item> findAllByOwnerIdOrderById(Long ownerId, Pageable page);
 
     Page<Item> findItemByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsAvailableIsTrue(String text,
                                                                                                        String text2,

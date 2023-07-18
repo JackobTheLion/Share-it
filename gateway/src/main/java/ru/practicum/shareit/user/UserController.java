@@ -25,7 +25,7 @@ public class UserController {
                                              @RequestBody UserRequestDto userRequestDto) {
         log.info("Adding user {}", userRequestDto);
         ResponseEntity<Object> response = userClient.addUser(userRequestDto);
-        log.info("User added: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -36,7 +36,7 @@ public class UserController {
 
         log.info("Updating user id {} with {}", userId, userRequestDto);
         ResponseEntity<Object> response = userClient.updateUser(userId, userRequestDto);
-        log.info("User updated: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -44,7 +44,7 @@ public class UserController {
     public ResponseEntity<Object> getUser(@PathVariable Long userId) {
         log.info("Looking for user id {}", userId);
         ResponseEntity<Object> response = userClient.getUser(userId);
-        log.info("User found: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -52,7 +52,7 @@ public class UserController {
     public ResponseEntity<Object> getAllUsers() {
         log.info("Getting all users");
         ResponseEntity<Object> response = userClient.getAllUsers();
-        log.info("Number of users found {}", response.getBody()); //TODO продумать как писать лог списка
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -60,7 +60,7 @@ public class UserController {
     public ResponseEntity<Object> deleteUser(@PathVariable Long userId) {
         log.info("Deleting user id {}", userId);
         ResponseEntity<Object> response = userClient.deleteUser(userId);
-        log.info("User deleted: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 }

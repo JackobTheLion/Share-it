@@ -83,7 +83,7 @@ public class ItemService {
             items = itemRepository.findAll(page);
         } else {
             log.info("Getting all items of user id: {}", userId);
-            items = itemRepository.findAllByOwnerId(userId, page);
+            items = itemRepository.findAllByOwnerIdOrderById(userId, page);
             setBookingsToItems(items.getContent());
         }
 

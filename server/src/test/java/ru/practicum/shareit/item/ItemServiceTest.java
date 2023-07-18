@@ -218,7 +218,7 @@ public class ItemServiceTest {
 
     @Test
     public void getAllItems_OwnerNormal() {
-        when(itemRepository.findAllByOwnerId(anyLong(), any(PageRequest.class)))
+        when(itemRepository.findAllByOwnerIdOrderById(anyLong(), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(savedItems));
         when(bookingRepository.findLastBooking(anyLong(), any(Timestamp.class)))
                 .thenReturn(lastBookings);
@@ -242,14 +242,14 @@ public class ItemServiceTest {
         List<Item> result = itemService.getAllItems(userIdNull, from, size);
         assertEquals(savedItems, result);
         verify(itemRepository, times(1)).findAll(any(PageRequest.class));
-        verify(itemRepository, never()).findAllByOwnerId(anyLong(), any(PageRequest.class));
+        verify(itemRepository, never()).findAllByOwnerIdOrderById(anyLong(), any(PageRequest.class));
         verify(bookingRepository, never()).findLastBooking(anyLong(), any(Timestamp.class));
         verify(bookingRepository, never()).findNextBooking(anyLong(), any(Timestamp.class));
     }
 
     @Test
     public void getAllItems_OwnerNoBookingsNormal() {
-        when(itemRepository.findAllByOwnerId(anyLong(), any(PageRequest.class)))
+        when(itemRepository.findAllByOwnerIdOrderById(anyLong(), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(savedItems));
         int from = 0;
         int size = 10;

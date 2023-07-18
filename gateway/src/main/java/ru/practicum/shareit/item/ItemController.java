@@ -28,7 +28,7 @@ public class ItemController {
 
         log.info("Adding item {} by user {}", itemRequestDto, userId);
         ResponseEntity<Object> response = itemClient.addItem(userId, itemRequestDto);
-        log.info("Item added: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -40,7 +40,7 @@ public class ItemController {
 
         log.info("Updating item id {} as {} by user {}", itemId, itemRequestDto, userId);
         ResponseEntity<Object> response = itemClient.updateItem(userId, itemId, itemRequestDto);
-        log.info("Updated item mapped to DTO: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -52,7 +52,7 @@ public class ItemController {
                                                       message = "Parameter 'size' must be more than 0") int size) {
         log.info("Getting all items. User id: {}.", userId);
         ResponseEntity<Object> response = itemClient.getAllItems(userId, from, size);
-        log.info("Number of items found: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -62,7 +62,7 @@ public class ItemController {
                                                   message = "User ID must be more than 0") Long userId) {
         log.info("Looking for item id {} by user {}", itemId, userId);
         ResponseEntity<Object> response = itemClient.getItem(userId, itemId);
-        log.info("Item found: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -77,7 +77,7 @@ public class ItemController {
 
         log.info("Looking for item by key word: \"{}\". User id: {}", text, userId);
         ResponseEntity<Object> response = itemClient.searchItem(userId, from, size, text);
-        log.info("Items found: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -88,7 +88,7 @@ public class ItemController {
 
         log.info("Deleting item id {} by user id {}", itemId, userId);
         ResponseEntity<Object> response = itemClient.deleteItem(itemId, userId);
-        log.info("Item deleted: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -99,7 +99,7 @@ public class ItemController {
                                              @RequestBody @Validated CommentDto commentDto) {
         log.info("Comment {} from user id {} to item {} received.", commentDto, userId, itemId);
         ResponseEntity<Object> response = itemClient.addComment(userId, itemId, commentDto);
-        log.info("Comment saved: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 }

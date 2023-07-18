@@ -305,7 +305,7 @@ public class BookingServiceTest {
         assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
-                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(), any(Timestamp.class),
+                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(), any(Timestamp.class),
                         any(Timestamp.class), any(PageRequest.class));
         verify(bookingRepository, never())
                 .findByBookerIdAndEndDateBeforeOrderByStartDateDesc(anyLong(), any(Timestamp.class),
@@ -322,7 +322,7 @@ public class BookingServiceTest {
     public void getUserBookings_StateCURRENT() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(booker));
         when(bookingRepository
-                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(), any(Timestamp.class),
+                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(), any(Timestamp.class),
                         any(Timestamp.class), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(bookings));
 
@@ -369,7 +369,7 @@ public class BookingServiceTest {
         verify(bookingRepository, never())
                 .findByBookerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class));
         verify(bookingRepository, never())
-                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(), any(Timestamp.class),
+                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(), any(Timestamp.class),
                         any(Timestamp.class), any(PageRequest.class));
         verify(bookingRepository, never())
                 .findByBookerIdAndStartDateAfterOrderByStartDateDesc(anyLong(), any(Timestamp.class),
@@ -398,7 +398,7 @@ public class BookingServiceTest {
         verify(bookingRepository, never())
                 .findByBookerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class));
         verify(bookingRepository, never())
-                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(), any(Timestamp.class),
+                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(), any(Timestamp.class),
                         any(Timestamp.class), any(PageRequest.class));
         verify(bookingRepository, never())
                 .findByBookerIdAndEndDateBeforeOrderByStartDateDesc(anyLong(), any(Timestamp.class),
@@ -426,7 +426,7 @@ public class BookingServiceTest {
         verify(bookingRepository, never())
                 .findByBookerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class));
         verify(bookingRepository, never())
-                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(), any(Timestamp.class),
+                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(), any(Timestamp.class),
                         any(Timestamp.class), any(PageRequest.class));
         verify(bookingRepository, never())
                 .findByBookerIdAndEndDateBeforeOrderByStartDateDesc(anyLong(), any(Timestamp.class),
@@ -455,7 +455,7 @@ public class BookingServiceTest {
         verify(bookingRepository, never())
                 .findByBookerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class));
         verify(bookingRepository, never())
-                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(), any(Timestamp.class),
+                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(), any(Timestamp.class),
                         any(Timestamp.class), any(PageRequest.class));
         verify(bookingRepository, never())
                 .findByBookerIdAndEndDateBeforeOrderByStartDateDesc(anyLong(), any(Timestamp.class),
@@ -481,7 +481,7 @@ public class BookingServiceTest {
         verify(bookingRepository, never())
                 .findByBookerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class));
         verify(bookingRepository, never())
-                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(), any(Timestamp.class),
+                .findByBookerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(), any(Timestamp.class),
                         any(Timestamp.class), any(PageRequest.class));
         verify(bookingRepository, never())
                 .findByBookerIdAndEndDateBeforeOrderByStartDateDesc(anyLong(), any(Timestamp.class),
@@ -509,7 +509,7 @@ public class BookingServiceTest {
         assertEquals(savedBookingRequestDto, result.get(0));
 
         verify(bookingRepository, never())
-                .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(),
+                .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(),
                         any(Timestamp.class), any(Timestamp.class), any(PageRequest.class)); //current
         verify(bookingRepository, never())
                 .findByItemOwnerIdAndEndDateBeforeOrderByStartDateDesc(anyLong(),
@@ -525,7 +525,7 @@ public class BookingServiceTest {
     @Test
     public void getOwnerBookings_StateCURRENT() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(booker));
-        when(bookingRepository.findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(),
+        when(bookingRepository.findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(),
                 any(Timestamp.class), any(Timestamp.class), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(bookings));
 
@@ -570,7 +570,7 @@ public class BookingServiceTest {
         verify(bookingRepository, never())
                 .findByItemOwnerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class)); //ALL
         verify(bookingRepository, never())
-                .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(),
+                .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(),
                         any(Timestamp.class), any(Timestamp.class), any(PageRequest.class)); //current
         verify(bookingRepository, never())
                 .findByItemOwnerIdAndStartDateAfterOrderByStartDateDesc(anyLong(),
@@ -599,7 +599,7 @@ public class BookingServiceTest {
         verify(bookingRepository, never())
                 .findByItemOwnerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class)); //ALL
         verify(bookingRepository, never())
-                .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(),
+                .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(),
                         any(Timestamp.class), any(Timestamp.class), any(PageRequest.class)); //current
         verify(bookingRepository, never())
                 .findByItemOwnerIdAndEndDateBeforeOrderByStartDateDesc(anyLong(),
@@ -628,7 +628,7 @@ public class BookingServiceTest {
         verify(bookingRepository, never())
                 .findByItemOwnerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class)); //ALL
         verify(bookingRepository, never())
-                .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(),
+                .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(),
                         any(Timestamp.class), any(Timestamp.class), any(PageRequest.class)); //current
         verify(bookingRepository, never())
                 .findByItemOwnerIdAndEndDateBeforeOrderByStartDateDesc(anyLong(),
@@ -657,7 +657,7 @@ public class BookingServiceTest {
         verify(bookingRepository, never())
                 .findByItemOwnerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class)); //ALL
         verify(bookingRepository, never())
-                .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(),
+                .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(),
                         any(Timestamp.class), any(Timestamp.class), any(PageRequest.class)); //current
         verify(bookingRepository, never())
                 .findByItemOwnerIdAndEndDateBeforeOrderByStartDateDesc(anyLong(),
@@ -682,7 +682,7 @@ public class BookingServiceTest {
         verify(bookingRepository, never())
                 .findByItemOwnerIdOrderByStartDateDesc(anyLong(), any(PageRequest.class)); //ALL
         verify(bookingRepository, never())
-                .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(anyLong(),
+                .findByItemOwnerIdAndStartDateBeforeAndEndDateAfterOrderById(anyLong(),
                         any(Timestamp.class), any(Timestamp.class), any(PageRequest.class)); //current
         verify(bookingRepository, never())
                 .findByItemOwnerIdAndEndDateBeforeOrderByStartDateDesc(anyLong(),

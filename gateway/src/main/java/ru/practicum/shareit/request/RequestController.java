@@ -25,7 +25,7 @@ public class RequestController {
 
         log.info("Request {} received from user id {}", itemRequestRequestDto, requesterId);
         ResponseEntity<Object> response = requestClient.addRequest(requesterId, itemRequestRequestDto);
-        log.info("Request saved: {}.", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -35,7 +35,7 @@ public class RequestController {
                                                       message = "User id should be more than 0") Long userId) {
         log.info("Looking for request id {} by user {}", requestId, userId);
         ResponseEntity<Object> response = requestClient.findRequest(userId, requestId);
-        log.info("Request found: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -49,7 +49,7 @@ public class RequestController {
 
         log.info("Looking for requests from user id {}. Paging from {}, size {}.", userId, from, size);
         ResponseEntity<Object> response = requestClient.getOwnRequests(userId, from, size);
-        log.info("Requests found: {}.", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -64,7 +64,7 @@ public class RequestController {
 
         log.info("Looking for all requests from {}, size {}", from, size);
         ResponseEntity<Object> response = requestClient.getAllRequests(userId, from, size);
-        log.info("Requests found: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 }

@@ -27,7 +27,7 @@ public class BookingController {
                                              @RequestBody @Valid BookingRequestDto bookingRequestDto) {
         log.info("Creating booking {}, userId={}", bookingRequestDto, userId);
         ResponseEntity<Object> response = bookingClient.bookItem(userId, bookingRequestDto);
-        log.info("Booking created: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -36,7 +36,7 @@ public class BookingController {
                                              @PathVariable Long bookingId) {
         log.info("Get booking {}, userId={}", bookingId, userId);
         ResponseEntity<Object> response = bookingClient.getBooking(userId, bookingId);
-        log.info("Booking received: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -49,14 +49,14 @@ public class BookingController {
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
         log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
         ResponseEntity<Object> response = bookingClient.getUserBookings(userId, state, from, size);
-        log.info("Bookings received: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getOwnerBooking(@RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
             message = "User id should be more than 0") Long ownerId,
-                                                  @RequestParam(required = false, defaultValue = "all") String stateParam,
+                                                  @RequestParam(name = "state", defaultValue = "all") String stateParam,
                                                   @RequestParam(defaultValue = "0") @Min(value = 0,
                                                           message = "Parameter 'from' must be more than 0") int from,
                                                   @RequestParam(defaultValue = "10") @Min(value = 0,
@@ -65,7 +65,7 @@ public class BookingController {
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
         log.info("Looking for bookings of owner {} with state {}", ownerId, stateParam);
         ResponseEntity<Object> response = bookingClient.getOwnerBookings(ownerId, state, from, size);
-        log.info("Bookings received: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 
@@ -76,7 +76,7 @@ public class BookingController {
                                                         message = "User id should be more than 0") Long ownerId) {
         log.info("Updating booking id {} as '{}' by user {}", bookingId, approved, ownerId);
         ResponseEntity<Object> response = bookingClient.updateBooking(ownerId, approved, bookingId);
-        log.info("Booking updated: {}", response.getBody());
+        log.info("Response: {}", response);
         return response;
     }
 }
