@@ -15,7 +15,7 @@ public class RequestMapper {
         User requester = new User();
         requester.setId(itemRequestRequestDto.getRequesterId());
         return Request.builder()
-                .created(Timestamp.valueOf(itemRequestRequestDto.getCreated()))
+                .created(itemRequestRequestDto.getCreated())
                 .description(itemRequestRequestDto.getDescription())
                 .requester(requester)
                 .build();

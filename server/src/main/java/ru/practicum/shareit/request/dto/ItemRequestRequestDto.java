@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.dto.ItemInRequestDto;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,6 +22,6 @@ public class ItemRequestRequestDto {
     private String description;
     @JsonProperty(access = WRITE_ONLY)
     private Long requesterId;
-    private LocalDateTime created = LocalDateTime.now();
+    private Timestamp created = Timestamp.valueOf(LocalDateTime.now());
     private List<ItemInRequestDto> items;
 }

@@ -29,7 +29,6 @@ services:
     ports:
       - "6543:5432"
     environment:
-      - TZ=GMT+3
       - POSTGRES_DB=shareit
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
