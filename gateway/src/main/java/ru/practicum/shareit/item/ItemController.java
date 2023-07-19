@@ -45,7 +45,8 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> getAllItems(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId,
+    public ResponseEntity<Object> getAllItems(@RequestHeader(value = "X-Sharer-User-Id", required = false)
+                                                  @Min(value = 1, message = "User ID must be more than 0") Long userId,
                                               @RequestParam(defaultValue = "0") @Min(value = 0,
                                                       message = "Parameter 'from' must be more than 0") int from,
                                               @RequestParam(defaultValue = "10") @Min(value = 0,
@@ -57,8 +58,10 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<Object> getItem(@PathVariable Long itemId,
-                                          @RequestHeader(value = "X-Sharer-User-Id", required = false) @Min(value = 1,
+    public ResponseEntity<Object> getItem(@PathVariable
+                                              @Min(value = 1, message = "Item ID must be more than 0") Long itemId,
+                                          @RequestHeader(value = "X-Sharer-User-Id", required = false)
+                                          @Min(value = 1,
                                                   message = "User ID must be more than 0") Long userId) {
         log.info("Looking for item id {} by user {}", itemId, userId);
         ResponseEntity<Object> response = itemClient.getItem(userId, itemId);

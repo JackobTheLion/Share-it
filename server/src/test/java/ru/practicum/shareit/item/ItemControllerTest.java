@@ -153,81 +153,13 @@ public class ItemControllerTest {
 
     @SneakyThrows
     @Test
-    public void addItem_WrongName() {
-        itemToSaveDto.setName("");
-
-        mockMvc.perform(post("/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToSaveDto))
-                        .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isBadRequest());
-
-        itemToSaveDto.setName("   ");
-
-        mockMvc.perform(post("/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToSaveDto))
-                        .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, times(0)).addItem(any(Item.class));
-    }
-
-    @SneakyThrows
-    @Test
-    public void addItem_WrongAvailable() {
-        itemToSaveDto.setAvailable(null);
-
-        mockMvc.perform(post("/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToSaveDto))
-                        .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, times(0)).addItem(any(Item.class));
-    }
-
-    @SneakyThrows
-    @Test
-    public void addItem_WrongDescription() {
-        itemToSaveDto.setDescription("");
-
-        mockMvc.perform(post("/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToSaveDto))
-                        .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isBadRequest());
-
-        itemToSaveDto.setDescription("   ");
-        mockMvc.perform(post("/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToSaveDto))
-                        .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, times(0)).addItem(any(Item.class));
-    }
-
-    @SneakyThrows
-    @Test
     public void addItem_NotAuthorized() {
         mockMvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(itemToSaveDto)))
                 .andExpect(status().isBadRequest());
 
-        verify(itemService, times(0)).addItem(any(Item.class));
-    }
-
-    @SneakyThrows
-    @Test
-    public void addItem_WrongUserId() {
-        mockMvc.perform(post("/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToSaveDto))
-                        .header("X-Sharer-User-Id", wrongUserId))
-                .andExpect(status().isBadRequest());
-        verify(itemService, times(0)).updateItem(any(Item.class));
+        verify(itemService, never()).addItem(any(Item.class));
     }
 
     @SneakyThrows
@@ -292,36 +224,6 @@ public class ItemControllerTest {
                         .content(objectMapper.writeValueAsString(itemToUpdateDto)))
                 .andExpect(status().isBadRequest());
 
-        verify(itemService, times(0)).updateItem(any(Item.class));
-    }
-
-    @SneakyThrows
-    @Test
-    public void updateItem_WrongItemId() {
-        ItemRequestDto itemToUpdateDto = ItemRequestDto.builder()
-                .name("updated name")
-                .build();
-
-        mockMvc.perform(patch("/items/{itemId}", wrongItemId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToUpdateDto))
-                        .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isBadRequest());
-        verify(itemService, times(0)).updateItem(any(Item.class));
-    }
-
-    @SneakyThrows
-    @Test
-    public void updateItem_WrongUserId() {
-        ItemRequestDto itemToUpdateDto = ItemRequestDto.builder()
-                .name("updated name")
-                .build();
-
-        mockMvc.perform(patch("/items/{itemId}", itemId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemToUpdateDto))
-                        .header("X-Sharer-User-Id", wrongUserId))
-                .andExpect(status().isBadRequest());
         verify(itemService, times(0)).updateItem(any(Item.class));
     }
 
@@ -471,31 +373,13 @@ public class ItemControllerTest {
     @SneakyThrows
     @Test
     public void deleteItem_Normal() {
+        when(itemService.deleteItem(anyLong(), anyLong())).thenReturn(savedItem);
+
         mockMvc.perform(delete("/items/{itemId}", itemId)
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk());
 
         verify(itemService, times(1)).deleteItem(itemId, userId);
-    }
-
-    @SneakyThrows
-    @Test
-    public void deleteItem_WrongUserId() {
-        mockMvc.perform(delete("/items/{itemId}", itemId)
-                        .header("X-Sharer-User-Id", wrongUserId))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, times(0)).deleteItem(itemId, wrongUserId);
-    }
-
-    @SneakyThrows
-    @Test
-    public void deleteItem_WrongItemId() {
-        mockMvc.perform(delete("/items/{itemId}", wrongItemId)
-                        .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, times(0)).deleteItem(wrongItemId, userId);
     }
 
     @SneakyThrows
@@ -514,45 +398,5 @@ public class ItemControllerTest {
 
         assertEquals(objectMapper.writeValueAsString(expectedCommentDto), result);
         verify(itemService, times(1)).addComment(any(Comment.class));
-    }
-
-    @SneakyThrows
-    @Test
-    public void addComment_BlankText() {
-        commentToAdd.setText("");
-
-        mockMvc.perform(post("/items/{itemId}/comment", itemId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(commentToAdd))
-                        .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isBadRequest());
-
-        commentToAdd.setText("   ");
-
-        mockMvc.perform(post("/items/{itemId}/comment", itemId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(commentToAdd))
-                        .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, times(0)).addComment(any(Comment.class));
-    }
-
-    @SneakyThrows
-    @Test
-    public void addComment_WrongId() {
-        mockMvc.perform(post("/items/{itemId}/comment", itemId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(commentToAdd))
-                        .header("X-Sharer-User-Id", wrongUserId))
-                .andExpect(status().isBadRequest());
-
-        mockMvc.perform(post("/items/{itemId}/comment", wrongItemId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(commentToAdd))
-                        .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, times(0)).addComment(any(Comment.class));
     }
 }
