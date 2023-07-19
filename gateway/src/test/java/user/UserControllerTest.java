@@ -1,6 +1,8 @@
 package user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -10,17 +12,20 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.handler.ErrorHandler;
 import ru.practicum.shareit.user.UserClient;
 import ru.practicum.shareit.user.UserController;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
-@ContextConfiguration(classes = UserController.class)
+@ContextConfiguration(classes = {UserController.class, ErrorHandler.class})
 public class UserControllerTest {
 
     @Autowired
@@ -33,23 +38,31 @@ public class UserControllerTest {
     private UserClient userClient;
 
     private UserRequestDto userToSave;
+    private Long userId = 1L;
 
-    @Test
-    public void addUser_WrongEmail() throws Exception {
+    @BeforeEach
+    public void init() {
         userToSave = UserRequestDto.builder()
                 .name("name")
-                .email("email")
+                .email("email@email.com")
                 .build();
+    }
 
-        when(userClient.addUser(userToSave)).thenReturn(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+    @SneakyThrows
+    @Test
+    public void addUser_Normal() {
+        when(userClient.addUser(any())).thenReturn(
+                new ResponseEntity<>(new UserRequestDto(), HttpStatus.OK));
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userToSave)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
+    }
 
-        verify(userClient, times(0)).addUser(any(UserRequestDto.class));
-
+    @SneakyThrows
+    @Test
+    public void addUser_WrongEmail() {
         userToSave.setEmail("");
 
         mockMvc.perform(post("/users")
@@ -57,41 +70,128 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsString(userToSave)))
                 .andExpect(status().isBadRequest());
 
-        verify(userClient, times(0)).addUser(any(UserRequestDto.class));
-
-        userToSave.setEmail(" ");
+        userToSave.setEmail("   ");
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userToSave)))
                 .andExpect(status().isBadRequest());
 
-        verify(userClient, times(0)).addUser(any(UserRequestDto.class));
+        verify(userClient, never()).addUser(any());
     }
 
+    @SneakyThrows
     @Test
-    public void addUser_WrongName() throws Exception {
-        userToSave = UserRequestDto.builder()
-                .name("")
-                .email("email@email.com")
+    public void addUser_WrongName() {
+        userToSave.setName("");
+
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userToSave)))
+                .andExpect(status().isBadRequest());
+
+        userToSave.setName(" ");
+
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userToSave)))
+                .andExpect(status().isBadRequest());
+
+        verify(userClient, never()).addUser(any());
+    }
+
+    @SneakyThrows
+    @Test
+    public void updateUser_Normal() {
+        when(userClient.updateUser(anyLong(), any())).thenReturn(
+                new ResponseEntity<>(new UserRequestDto(), HttpStatus.OK));
+
+        UserRequestDto updatedUser = UserRequestDto.builder()
+                .email("otheremail@email.com")
                 .build();
 
-        when(userClient.addUser(userToSave)).thenReturn(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+        mockMvc.perform(patch("/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedUser)))
+                .andExpect(status().isOk());
 
-        mockMvc.perform(post("/users")
+        updatedUser = UserRequestDto.builder()
+                .name("new name")
+                .build();
+
+        mockMvc.perform(patch("/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedUser)))
+                .andExpect(status().isOk());
+    }
+
+    @SneakyThrows
+    @Test
+    public void updateUser_wrongUserId() {
+        Long wrongUserId = -999L;
+
+        mockMvc.perform(patch("/users/" + wrongUserId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userToSave)))
                 .andExpect(status().isBadRequest());
 
-        verify(userClient, times(0)).addUser(any(UserRequestDto.class));
+        verify(userClient, never()).updateUser(anyLong(), any());
+    }
 
-        userToSave.setEmail(" ");
+    @SneakyThrows
+    @Test
+    public void getUser_Normal() {
+        when(userClient.getUser(anyLong())).thenReturn(
+                new ResponseEntity<>(new UserRequestDto(), HttpStatus.OK));
 
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userToSave)))
+        mockMvc.perform(get("/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @SneakyThrows
+    @Test
+    public void getUser_WrongUserId() {
+        Long wrongUserId = -999L;
+
+        mockMvc.perform(get("/users/" + wrongUserId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        verify(userClient, times(0)).addUser(any(UserRequestDto.class));
+        verify(userClient, never()).getUser(anyLong());
+    }
+
+    @SneakyThrows
+    @Test
+    public void getAllUser_Normal() {
+        when(userClient.getUser(anyLong())).thenReturn(
+                new ResponseEntity<>(List.of(new UserRequestDto()), HttpStatus.OK));
+
+        mockMvc.perform(get("/users")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @SneakyThrows
+    @Test
+    public void deleteUser_Normal() {
+        when(userClient.deleteUser(anyLong())).thenReturn(
+                new ResponseEntity<>(new UserRequestDto(), HttpStatus.OK));
+
+        mockMvc.perform(delete("/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @SneakyThrows
+    @Test
+    public void deleteUser_WrongUserId() {
+        Long wrongUserId = -999L;
+
+        mockMvc.perform(delete("/users/" + wrongUserId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        verify(userClient, never()).deleteUser(anyLong());
     }
 }

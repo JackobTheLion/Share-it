@@ -6,7 +6,6 @@ import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.model.User;
 
-import java.sql.Timestamp;
 import java.util.stream.Collectors;
 
 public class RequestMapper {

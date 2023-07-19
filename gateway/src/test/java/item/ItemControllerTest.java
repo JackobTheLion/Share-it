@@ -17,7 +17,6 @@ import ru.practicum.shareit.item.ItemClient;
 import ru.practicum.shareit.item.ItemController;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemRequestRequestDto;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -63,7 +62,7 @@ public class ItemControllerTest {
     @Test
     public void addItem_Normal() {
         when(itemClient.addItem(anyLong(), any(ItemRequestDto.class))).thenReturn(
-                new ResponseEntity<>(new ItemRequestRequestDto(), HttpStatus.OK));
+                new ResponseEntity<>(new ItemRequestDto(), HttpStatus.OK));
 
         mockMvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -148,7 +147,7 @@ public class ItemControllerTest {
     @Test
     public void updateItem_Normal() {
         when(itemClient.updateItem(anyLong(), anyLong(), any(ItemRequestDto.class))).thenReturn(
-                new ResponseEntity<>(new ItemRequestRequestDto(), HttpStatus.OK));
+                new ResponseEntity<>(new ItemRequestDto(), HttpStatus.OK));
         Long itemId = 1L;
 
         mockMvc.perform(patch("/items/" + itemId)
@@ -191,7 +190,7 @@ public class ItemControllerTest {
     @Test
     public void getAllItems_Normal() {
         when(itemClient.getAllItems(anyLong(), anyInt(), anyInt())).thenReturn(
-                new ResponseEntity<>(new ItemRequestRequestDto(), HttpStatus.OK));
+                new ResponseEntity<>(new ItemRequestDto(), HttpStatus.OK));
 
         mockMvc.perform(get("/items")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -248,7 +247,7 @@ public class ItemControllerTest {
     @Test
     public void getItem_Normal() {
         when(itemClient.getItem(anyLong(), anyLong())).thenReturn(
-                new ResponseEntity<>(new ItemRequestRequestDto(), HttpStatus.OK));
+                new ResponseEntity<>(new ItemRequestDto(), HttpStatus.OK));
         Long itemId = 1L;
 
         mockMvc.perform(get("/items/" + itemId)
@@ -285,7 +284,7 @@ public class ItemControllerTest {
     @Test
     public void searchItem_Normal() {
         when(itemClient.searchItem(anyLong(), anyInt(), anyInt(), anyString())).thenReturn(
-                new ResponseEntity<>(new ItemRequestRequestDto(), HttpStatus.OK));
+                new ResponseEntity<>(new ItemRequestDto(), HttpStatus.OK));
 
         String text = "this is text";
 
@@ -343,10 +342,10 @@ public class ItemControllerTest {
     @Test
     public void deleteItem_Normal() {
         when(itemClient.deleteItem(anyLong(), anyLong())).thenReturn(
-                new ResponseEntity<>(new ItemRequestRequestDto(), HttpStatus.OK));
+                new ResponseEntity<>(new ItemRequestDto(), HttpStatus.OK));
         Long itemId = 1L;
 
-        mockMvc.perform(get("/items/" + itemId)
+        mockMvc.perform(delete("/items/" + itemId)
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk());
     }
@@ -356,7 +355,7 @@ public class ItemControllerTest {
     public void deleteItem_WrongUserOrItemId() {
         Long wrongItemId = -999L;
 
-        mockMvc.perform(get("/items/" + wrongItemId)
+        mockMvc.perform(delete("/items/" + wrongItemId)
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isBadRequest());
 

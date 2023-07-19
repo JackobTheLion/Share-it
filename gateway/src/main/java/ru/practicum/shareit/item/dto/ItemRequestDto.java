@@ -1,7 +1,9 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingDtoItem;
 
 import javax.validation.constraints.NotBlank;
@@ -12,6 +14,8 @@ import static ru.practicum.shareit.validation.ValidationGroups.Create;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ItemRequestDto {
     private Long id;
     @NotBlank(groups = Create.class, message = "Name cannot be empty.")

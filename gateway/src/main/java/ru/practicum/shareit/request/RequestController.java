@@ -30,7 +30,8 @@ public class RequestController {
     }
 
     @GetMapping("/{requestId}")
-    public ResponseEntity<Object> findRequest(@PathVariable Long requestId,
+    public ResponseEntity<Object> findRequest(@PathVariable @Min(value = 1,
+            message = "Request id should be more than 0") Long requestId,
                                               @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
                                                       message = "User id should be more than 0") Long userId) {
         log.info("Looking for request id {} by user {}", requestId, userId);
