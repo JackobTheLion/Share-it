@@ -18,10 +18,11 @@ services:
     depends_on:
       - db
     environment:
-      - TZ=GMT+3
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
+      #- TZ=GMT+3
+
 
   db:
     image: postgres:13.7-alpine
