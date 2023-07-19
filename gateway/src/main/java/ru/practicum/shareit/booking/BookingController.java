@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -23,8 +22,9 @@ public class BookingController {
     private final BookingClient bookingClient;
 
     @PostMapping
-    public ResponseEntity<Object> addBooking(@RequestHeader("X-Sharer-User-Id") long userId,
-                                             @RequestBody @Valid BookingRequestDto bookingRequestDto) {
+    public ResponseEntity<Object> addBooking(@RequestHeader("X-Sharer-User-Id") @Min(value = 1,
+            message = "User ID must be more than 0") Long userId,
+                                             @RequestBody @Validated BookingRequestDto bookingRequestDto) {
         log.info("Creating booking {}, userId={}", bookingRequestDto, userId);
         ResponseEntity<Object> response = bookingClient.bookItem(userId, bookingRequestDto);
         log.info("Response: {}", response);
@@ -32,8 +32,10 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> getBooking(@RequestHeader("X-Sharer-User-Id") long userId,
-                                             @PathVariable Long bookingId) {
+    public ResponseEntity<Object> getBooking(@RequestHeader("X-Sharer-User-Id") @Min(value = 1,
+            message = "User ID must be more than 0") Long userId,
+                                             @PathVariable @Min(value = 0,
+                                                     message = "Booking ID must be more than 0") Long bookingId) {
         log.info("Get booking {}, userId={}", bookingId, userId);
         ResponseEntity<Object> response = bookingClient.getBooking(userId, bookingId);
         log.info("Response: {}", response);
@@ -41,7 +43,8 @@ public class BookingController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> getUserBookings(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getUserBookings(@RequestHeader("X-Sharer-User-Id") @Min(value = 0,
+            message = "User ID must be more than 0") Long userId,
                                                   @RequestParam(name = "state", defaultValue = "all") String stateParam,
                                                   @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                   @Positive @RequestParam(defaultValue = "10") Integer size) {
@@ -70,7 +73,8 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    public ResponseEntity<Object> updateBooking(@PathVariable Long bookingId,
+    public ResponseEntity<Object> updateBooking(@PathVariable @Min(value = 1,
+            message = "Booking id should be more than 0") Long bookingId,
                                                 @RequestParam Boolean approved,
                                                 @RequestHeader(value = "X-Sharer-User-Id") @Min(value = 1,
                                                         message = "User id should be more than 0") Long ownerId) {

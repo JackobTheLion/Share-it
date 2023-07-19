@@ -1,22 +1,26 @@
 package ru.practicum.shareit.booking.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.user.dto.UserResponseDto;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-import static com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY;
-
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class BookingRequestDto {
     private Long id;
 
+    @NotNull
+    @Min(value = 1, message = "Item id should be more than 0")
     private Long itemId;
 
     @NotNull(message = "Start date cannot be null")

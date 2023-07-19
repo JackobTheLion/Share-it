@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.handler.ErrorHandler;
 import ru.practicum.shareit.item.ItemClient;
 import ru.practicum.shareit.item.ItemController;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestRequestDto;
 
@@ -39,6 +40,7 @@ public class ItemControllerTest {
     private ItemClient itemClient;
 
     private ItemRequestDto itemRequestDto;
+    private CommentDto commentDto;
     private Long userId = 1L;
     private Integer from = 0;
     private Integer size = 10;
@@ -49,6 +51,10 @@ public class ItemControllerTest {
                 .name("name")
                 .description("description")
                 .available(true)
+                .build();
+
+        commentDto = CommentDto.builder()
+                .text("text")
                 .build();
     }
 
@@ -333,4 +339,100 @@ public class ItemControllerTest {
         verify(itemClient, never()).searchItem(anyLong(), anyInt(), anyInt(), anyString());
     }
 
+    @SneakyThrows
+    @Test
+    public void deleteItem_Normal() {
+        when(itemClient.deleteItem(anyLong(), anyLong())).thenReturn(
+                new ResponseEntity<>(new ItemRequestRequestDto(), HttpStatus.OK));
+        Long itemId = 1L;
+
+        mockMvc.perform(get("/items/" + itemId)
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isOk());
+    }
+
+    @SneakyThrows
+    @Test
+    public void deleteItem_WrongUserOrItemId() {
+        Long wrongItemId = -999L;
+
+        mockMvc.perform(get("/items/" + wrongItemId)
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isBadRequest());
+
+        Long wrongUserId = -999L;
+        Long itemId = 1L;
+
+        mockMvc.perform(get("/items/" + itemId)
+                        .header("X-Sharer-User-Id", wrongUserId))
+                .andExpect(status().isBadRequest());
+
+        verify(itemClient, never()).deleteItem(anyLong(), anyLong());
+    }
+
+    @SneakyThrows
+    @Test
+    public void addComment_Normal() {
+        when(itemClient.addComment(anyLong(), anyLong(), any(CommentDto.class))).thenReturn(
+                new ResponseEntity<>(new CommentDto(), HttpStatus.OK));
+        Long itemId = 1L;
+
+        mockMvc.perform(post("/items/" + itemId + "/comment")
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentDto)))
+                .andExpect(status().isOk());
+    }
+
+    @SneakyThrows
+    @Test
+    public void addComment_EmptyText() {
+        Long itemId = 1L;
+        commentDto.setText("");
+
+        mockMvc.perform(post("/items/" + itemId + "/comment")
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentDto)))
+                .andExpect(status().isBadRequest());
+
+        commentDto.setText("   ");
+
+        mockMvc.perform(post("/items/" + itemId + "/comment")
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentDto)))
+                .andExpect(status().isBadRequest());
+
+        verify(itemClient, never()).deleteItem(anyLong(), anyLong());
+    }
+
+    @SneakyThrows
+    @Test
+    public void addComment_WrongUserId() {
+        Long itemId = 1L;
+        Long wrongUsrId = -999L;
+
+        mockMvc.perform(post("/items/" + itemId + "/comment")
+                        .header("X-Sharer-User-Id", wrongUsrId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentDto)))
+                .andExpect(status().isBadRequest());
+
+        verify(itemClient, never()).addComment(anyLong(), anyLong(), any(CommentDto.class));
+    }
+
+    @SneakyThrows
+    @Test
+    public void addComment_WrongIyemId() {
+        Long wrongItemId = -999L;
+
+        mockMvc.perform(post("/items/" + wrongItemId + "/comment")
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentDto)))
+                .andExpect(status().isBadRequest());
+
+        verify(itemClient, never()).addComment(anyLong(), anyLong(), any(CommentDto.class));
+    }
 }

@@ -313,7 +313,25 @@ public class UserServiceTest {
 
     @Test
     public void delete_Normal() {
-        userService.delete(anyLong());
-        verify(userRepository, times(1)).deleteById(anyLong());
+        User userToDelete = User.builder()
+                .id(1L)
+                .name("name")
+                .email("email@email.ru")
+                .build();
+
+        when(userRepository.findById(userToDelete.getId())).thenReturn(Optional.of(userToDelete));
+        User deletedUser = userService.delete(userToDelete.getId());
+
+        assertEquals(userToDelete, deletedUser);
+    }
+
+    @Test
+    public void delete_NoSuchUser() {
+        Long userToDeleteId = 1L;
+
+        when(userRepository.findById(userToDeleteId)).thenReturn(Optional.empty());
+        Throwable e = assertThrows(UserNotFoundException.class, () -> userService.delete(userToDeleteId));
+
+        assertEquals(String.format("User id %s not found", userToDeleteId), e.getMessage());
     }
 }

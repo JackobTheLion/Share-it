@@ -46,8 +46,8 @@ public class RequestControllerTest {
     private LocalDateTime now = LocalDateTime.now();
     private Long userId = 1L;
     private Long wrongUserId = -9999L;
-    private int from = 0;
-    private int size = 10;
+    private Integer from = 0;
+    private Integer size = 10;
     private List<ItemRequestResponseDto> requests;
 
     @BeforeEach
@@ -90,44 +90,6 @@ public class RequestControllerTest {
 
     @SneakyThrows
     @Test
-    public void addRequest_BlankDescription() {
-        requestToSaveDto.setDescription("");
-
-        mockMvc.perform(post("/requests")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestToSaveDto))
-                        .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isBadRequest());
-
-        requestToSaveDto.setDescription("   ");
-
-        mockMvc.perform(post("/requests")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestToSaveDto))
-                        .header("X-Sharer-User-Id", userId))
-                .andExpect(status().isBadRequest());
-
-        verify(requestService, never()).addRequest(any(ItemRequestRequestDto.class));
-    }
-
-    @SneakyThrows
-    @Test
-    public void addRequest_WrongUserId() {
-        String result = mockMvc.perform(post("/requests")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestToSaveDto))
-                        .header("X-Sharer-User-Id", wrongUserId))
-                .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        assertEquals("{\"error\":\"addRequest.requesterId: User id should be more than 0\"}", result);
-        verify(requestService, never()).addRequest(any(ItemRequestRequestDto.class));
-    }
-
-    @SneakyThrows
-    @Test
     public void getRequest_Normal() {
         when(requestService.findRequest(savedItemRequestRequestDto.getId(), userId)).thenReturn(savedItemRequestRequestDto);
 
@@ -152,6 +114,8 @@ public class RequestControllerTest {
 
         String result = mockMvc.perform(get("/requests")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .param("from", from.toString())
+                        .param("size", size.toString())
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -166,6 +130,8 @@ public class RequestControllerTest {
     public void getOwnRequests_Empty() {
         String result = mockMvc.perform(get("/requests")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .param("from", from.toString())
+                        .param("size", size.toString())
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -182,6 +148,8 @@ public class RequestControllerTest {
 
         String result = mockMvc.perform(get("/requests/all")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .param("from", from.toString())
+                        .param("size", size.toString())
                         .header("X-Sharer-User-Id", userId))
                 .andExpect(status().isOk())
                 .andReturn()
