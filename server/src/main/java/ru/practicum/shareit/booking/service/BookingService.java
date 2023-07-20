@@ -117,7 +117,7 @@ public class BookingService {
                 bookings = bookingRepository.findByBookerIdOrderByStartDateDesc(bookerId, page);
                 break;
             case "CURRENT":
-                bookings = bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfterOrderById(bookerId,
+                bookings = bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(bookerId,
                         now, now, page);
                 break;
             case "PAST":

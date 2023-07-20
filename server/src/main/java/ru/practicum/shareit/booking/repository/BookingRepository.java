@@ -13,8 +13,8 @@ import java.util.List;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     Page<Booking> findByBookerIdOrderByStartDateDesc(Long userId, Pageable page);
 
-    Page<Booking> findByBookerIdAndStartDateBeforeAndEndDateAfterOrderById(Long userId, Timestamp t1,
-                                                                           Timestamp t2, Pageable page);
+    Page<Booking> findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(Long userId, Timestamp t1,
+                                                                                      Timestamp t2, Pageable page);
 
     Page<Booking> findByBookerIdAndEndDateBeforeOrderByStartDateDesc(Long userId, Timestamp t1, Pageable page);
 
