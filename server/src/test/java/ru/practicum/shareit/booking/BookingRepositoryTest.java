@@ -106,7 +106,7 @@ class BookingRepositoryTest {
         var end = LocalDateTime.now().plusDays(1);
         var now = Timestamp.valueOf(LocalDateTime.now());
         var booking = createBooking(Status.WAITING, item, booker, start, end);
-        var result = bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfterOrderById(booker.getId(), now, now, Pageable.unpaged());
+        var result = bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(booker.getId(), now, now, Pageable.unpaged());
         Assertions.assertNotNull(result);
         Assertions.assertEquals(1, result.getTotalElements());
         Assertions.assertEquals(booking.getId(), result.getContent().get(0).getId());

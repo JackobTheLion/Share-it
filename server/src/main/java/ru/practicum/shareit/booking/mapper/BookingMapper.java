@@ -13,18 +13,6 @@ import ru.practicum.shareit.user.model.User;
 import java.sql.Timestamp;
 
 public class BookingMapper {
-    public static Booking mapFromDto(BookingRequestDto bookingRequestDto, Long bookerId) {
-        Booking booking = Booking.builder()
-                .startDate(Timestamp.valueOf(bookingRequestDto.getStart()))
-                .endDate(Timestamp.valueOf(bookingRequestDto.getEnd()))
-                .item(new Item())
-                .booker(new User())
-                .build();
-        booking.getItem().setId(bookingRequestDto.getItemId());
-        booking.getBooker().setId(bookerId);
-        return booking;
-    }
-
     public static Booking mapFromDto(BookingRequestDto bookingRequestDto, Long bookerId, Status status) {
         Booking booking = Booking.builder()
                 .startDate(Timestamp.valueOf(bookingRequestDto.getStart()))
