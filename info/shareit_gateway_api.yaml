@@ -1,370 +1,12 @@
 openapi: "3.0.3"
 info:
-  title: "java_shareit API"
+  title: "Shareit Gateway API"
   description: "java_shareit API"
   version: "1.0.0"
 servers:
   - url: "https://java_shareit"
 paths:
-  /items/{itemId}:
-    patch:
-      summary: "PATCH items/{itemId}"
-      operationId: "updateItem"
-      parameters:
-        - name: "itemId"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-        - name: "X-Sharer-User-Id"
-          in: "header"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ItemRequestDto"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ItemRequestDto"
-    delete:
-      summary: "DELETE items/{itemId}"
-      operationId: "deleteItem"
-      parameters:
-        - name: "itemId"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-        - name: "X-Sharer-User-Id"
-          in: "header"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
-    get:
-      summary: "GET items/{itemId}"
-      operationId: "getItem"
-      parameters:
-        - name: "itemId"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-        - name: "X-Sharer-User-Id"
-          in: "header"
-          required: false
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ItemResponseDto"
-  /items:
-    post:
-      summary: "POST items"
-      operationId: "addItem"
-      parameters:
-        - name: "X-Sharer-User-Id"
-          in: "header"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ItemRequestDto"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
-    get:
-      summary: "GET items"
-      operationId: "getAllItems"
-      parameters:
-        - name: "from"
-          in: "query"
-          required: false
-          schema:
-            type: "integer"
-            format: "int32"
-            default: "0"
-        - name: "size"
-          in: "query"
-          required: false
-          schema:
-            type: "integer"
-            format: "int32"
-            default: "10"
-        - name: "X-Sharer-User-Id"
-          in: "header"
-          required: false
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
-  /items/{itemId}/comment:
-    post:
-      summary: "POST items/{itemId}/comment"
-      operationId: "addComment"
-      parameters:
-        - name: "itemId"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-        - name: "X-Sharer-User-Id"
-          in: "header"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CommentDto"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
-  /items/search:
-    get:
-      summary: "GET items/search"
-      operationId: "searchItem"
-      parameters:
-        - name: "text"
-          in: "query"
-          required: true
-          schema:
-            type: "string"
-        - name: "from"
-          in: "query"
-          required: false
-          schema:
-            type: "integer"
-            format: "int32"
-            default: "0"
-        - name: "size"
-          in: "query"
-          required: false
-          schema:
-            type: "integer"
-            format: "int32"
-            default: "10"
-        - name: "X-Sharer-User-Id"
-          in: "header"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
-  /users/{userId}:
-    patch:
-      summary: "PATCH users/{userId}"
-      operationId: "updateUser"
-      parameters:
-        - name: "userId"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserRequestDto"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
-    delete:
-      summary: "DELETE users/{userId}"
-      operationId: "deleteUser"
-      parameters:
-        - name: "userId"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
-    get:
-      summary: "GET users/{userId}"
-      operationId: "getUser"
-      parameters:
-        - name: "userId"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
-  /users:
-    post:
-      summary: "POST users"
-      operationId: "addUser"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserRequestDto"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
-    get:
-      summary: "GET users"
-      operationId: "getAllUsers"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
-  /bookings/{bookingId}:
-    patch:
-      summary: "PATCH bookings/{bookingId}"
-      operationId: "updateBooking"
-      parameters:
-        - name: "bookingId"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-        - name: "approved"
-          in: "query"
-          required: true
-          schema:
-            type: "boolean"
-        - name: "X-Sharer-User-Id"
-          in: "header"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
-    get:
-      summary: "GET bookings/{bookingId}"
-      operationId: "getBooking"
-      parameters:
-        - name: "bookingId"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-        - name: "X-Sharer-User-Id"
-          in: "header"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
   /bookings:
-    post:
-      summary: "POST bookings"
-      operationId: "addBooking"
-      parameters:
-        - name: "X-Sharer-User-Id"
-          in: "header"
-          required: true
-          schema:
-            type: "integer"
-            format: "int64"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/BookingRequestDto"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Object"
     get:
       summary: "GET bookings"
       operationId: "getUserBookings"
@@ -395,6 +37,29 @@ paths:
           schema:
             type: "integer"
             format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+    post:
+      summary: "POST bookings"
+      operationId: "addBooking"
+      parameters:
+        - name: "X-Sharer-User-Id"
+          in: "header"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingRequestDto"
+        required: true
       responses:
         "200":
           description: "OK"
@@ -440,7 +105,288 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Object"
+  /bookings/{bookingId}:
+    get:
+      summary: "GET bookings/{bookingId}"
+      operationId: "getBooking"
+      parameters:
+        - name: "bookingId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "X-Sharer-User-Id"
+          in: "header"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+    patch:
+      summary: "PATCH bookings/{bookingId}"
+      operationId: "updateBooking"
+      parameters:
+        - name: "bookingId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "approved"
+          in: "query"
+          required: true
+          schema:
+            type: "boolean"
+        - name: "X-Sharer-User-Id"
+          in: "header"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+  /items:
+    get:
+      summary: "GET items"
+      operationId: "getAllItems"
+      parameters:
+        - name: "from"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "0"
+        - name: "size"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "10"
+        - name: "X-Sharer-User-Id"
+          in: "header"
+          required: false
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+    post:
+      summary: "POST items"
+      operationId: "addItem"
+      parameters:
+        - name: "X-Sharer-User-Id"
+          in: "header"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ItemRequestDto"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+  /items/search:
+    get:
+      summary: "GET items/search"
+      operationId: "searchItem"
+      parameters:
+        - name: "text"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+        - name: "from"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "0"
+        - name: "size"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "10"
+        - name: "X-Sharer-User-Id"
+          in: "header"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+  /items/{itemId}:
+    get:
+      summary: "GET items/{itemId}"
+      operationId: "getItem"
+      parameters:
+        - name: "itemId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "X-Sharer-User-Id"
+          in: "header"
+          required: false
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+    patch:
+      summary: "PATCH items/{itemId}"
+      operationId: "updateItem"
+      parameters:
+        - name: "itemId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "X-Sharer-User-Id"
+          in: "header"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ItemRequestDto"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+    delete:
+      summary: "DELETE items/{itemId}"
+      operationId: "deleteItem"
+      parameters:
+        - name: "itemId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "X-Sharer-User-Id"
+          in: "header"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+  /items/{itemId}/comment:
+    post:
+      summary: "POST items/{itemId}/comment"
+      operationId: "addComment"
+      parameters:
+        - name: "itemId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "X-Sharer-User-Id"
+          in: "header"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentDto"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
   /requests:
+    get:
+      summary: "GET requests"
+      operationId: "getOwnRequests"
+      parameters:
+        - name: "from"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "0"
+        - name: "size"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "10"
+        - name: "X-Sharer-User-Id"
+          in: "header"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
     post:
       summary: "POST requests"
       operationId: "addRequest"
@@ -464,9 +410,10 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Object"
+  /requests/all:
     get:
-      summary: "GET requests"
-      operationId: "getOwnRequests"
+      summary: "GET requests/all"
+      operationId: "getRequests"
       parameters:
         - name: "from"
           in: "query"
@@ -519,27 +466,80 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Object"
-  /requests/all:
+  /users:
     get:
-      summary: "GET requests/all"
-      operationId: "getRequests"
+      summary: "GET users"
+      operationId: "getAllUsers"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+    post:
+      summary: "POST users"
+      operationId: "addUser"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRequestDto"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+  /users/{userId}:
+    get:
+      summary: "GET users/{userId}"
+      operationId: "getUser"
       parameters:
-        - name: "from"
-          in: "query"
-          required: false
+        - name: "userId"
+          in: "path"
+          required: true
           schema:
             type: "integer"
-            format: "int32"
-            default: "0"
-        - name: "size"
-          in: "query"
-          required: false
+            format: "int64"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+    patch:
+      summary: "PATCH users/{userId}"
+      operationId: "updateUser"
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
           schema:
             type: "integer"
-            format: "int32"
-            default: "10"
-        - name: "X-Sharer-User-Id"
-          in: "header"
+            format: "int64"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRequestDto"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Object"
+    delete:
+      summary: "DELETE users/{userId}"
+      operationId: "deleteUser"
+      parameters:
+        - name: "userId"
+          in: "path"
           required: true
           schema:
             type: "integer"
@@ -553,6 +553,9 @@ paths:
                 $ref: "#/components/schemas/Object"
 components:
   schemas:
+    Object:
+      type: "object"
+      properties: { }
     CommentDto:
       type: "object"
       properties:
@@ -575,42 +578,6 @@ components:
         bookerId:
           type: "integer"
           format: "int64"
-    ItemRequestDto:
-      type: "object"
-      properties:
-        id:
-          type: "integer"
-          format: "int64"
-        name:
-          type: "string"
-        description:
-          type: "string"
-        available:
-          type: "boolean"
-        comments:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/CommentDto"
-        requestId:
-          type: "integer"
-          format: "int64"
-        lastBooking:
-          $ref: "#/components/schemas/BookingDtoItem"
-        nextBooking:
-          $ref: "#/components/schemas/BookingDtoItem"
-    Object:
-      type: "object"
-      properties: { }
-    UserRequestDto:
-      type: "object"
-      properties:
-        id:
-          type: "integer"
-          format: "int64"
-        email:
-          type: "string"
-        name:
-          type: "string"
     ItemResponseDto:
       type: "object"
       properties:
@@ -670,6 +637,29 @@ components:
             - "REJECTED"
             - "WAITING"
             - "CANCELED"
+    ItemRequestDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        name:
+          type: "string"
+        description:
+          type: "string"
+        available:
+          type: "boolean"
+        comments:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/CommentDto"
+        requestId:
+          type: "integer"
+          format: "int64"
+        lastBooking:
+          $ref: "#/components/schemas/BookingDtoItem"
+        nextBooking:
+          $ref: "#/components/schemas/BookingDtoItem"
     ItemInRequestDto:
       type: "object"
       properties:
@@ -688,24 +678,6 @@ components:
         requestId:
           type: "integer"
           format: "int64"
-      ItemResponseDto:
-        type: "object"
-        properties:
-          id:
-            type: "integer"
-            format: "int64"
-          name:
-            type: "string"
-          ownerId:
-            type: "integer"
-            format: "int64"
-          description:
-            type: "string"
-          available:
-            type: "boolean"
-          requestId:
-            type: "integer"
-            format: "int64"
     ItemRequestRequestDto:
       type: "object"
       properties:
@@ -724,3 +696,13 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/ItemInRequestDto"
+    UserRequestDto:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        email:
+          type: "string"
+        name:
+          type: "string"

@@ -166,15 +166,6 @@ class BookingRepositoryTest {
         Assertions.assertEquals(booking.getStatus(), result.getContent().get(0).getStatus());
     }
 
-/*    @Test
-    void testIsAvailableForBooking() {
-        var start = LocalDateTime.now().plusDays(-2);
-        var end = LocalDateTime.now().plusDays(2);
-        var booking = createBooking(Status.APPROVED, item, booker, start, end);
-        Assertions.assertTrue(bookingRepository.isAvailableForBooking(item.getId(), LocalDateTime.now().plusDays(-1), LocalDateTime.now().plusDays(1)));
-        Assertions.assertFalse(bookingRepository.isAvailableForBooking(item.getId(), LocalDateTime.now().plusDays(-3), LocalDateTime.now().plusDays(3)));
-    }*/
-
     @AfterEach
     void tearDown() {
         bookingRepository.deleteAll();
