@@ -4,7 +4,7 @@ info:
   description: "java_shareit API"
   version: "1.0.0"
 servers:
-  - url: "https://java_shareit"
+  - url: "https://localhost:8080"
 paths:
   /bookings:
     get:
