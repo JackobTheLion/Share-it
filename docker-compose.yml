@@ -25,8 +25,8 @@ services:
   db:
     image: postgres:13.7-alpine
     container_name: shareit-db
-    ports:
-      - "6543:5432"
+    #ports:
+      #- "6543:5432"
     environment:
       - POSTGRES_DB=shareit
       - POSTGRES_USER=root
