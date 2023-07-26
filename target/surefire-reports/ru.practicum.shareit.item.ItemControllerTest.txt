@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: ru.practicum.shareit.item.ItemControllerTest
+-------------------------------------------------------------------------------
+Tests run: 21, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.019 s - in ru.practicum.shareit.item.ItemControllerTest
