@@ -50,27 +50,14 @@ ___
 * Docker Compose
 ___
 ### :page_with_curl: Инструкция по запуску:
-Скачать проект.
-Если временная зона пользователя отличается от UTC+0, то указать нужную временную зону в сервисе server docker-compose файла. \
+1. Скачать проект.
+2. Если временная зона пользователя отличается от UTC+0, то указать нужную временную зону в сервисе server docker-compose файла. \
 Убедитесь, что порт 8080 свободен.
-``` dockerfile
-  server:
-    build: server/
-    image: shareit-server-image
-    container_name: shareit-server
-    depends_on:
-      - db
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - TZ=GMT+3 #Moscow timezone
-```
-Собрать проект:
+3. Собрать проект:
 ```shell
 docker compose build
 ```
-Запустить проект: 
+4. апустить проект: 
 ```shell
 docker compose up
 ```
